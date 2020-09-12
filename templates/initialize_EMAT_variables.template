@@ -1,0 +1,1782 @@
+~/**********************************************************************
+~/
+~/**********************************************************************
+~/
+~/    Delete and initialize EMAT Variables
+~/
+~/**********************************************************************
+reports=report\initialize_emat_variables.rxt
+~o|39
+~/**********************************************************************
+~/
+~/
+~/
+~/
+~/**********************************************************************
+~/**********************************************************************
+~/ SET ALL EMAT INPUT VALUES HERE
+~/**********************************************************************
+~/
+~/ PARKING PRICING FACTOR (0.0 to 1.0)
+~r1=__EMAT_PROVIDES__parking__pricing__factor__
+~/ TRANSIT FARES FACTOR (0.0 to 1.0)
+~r2=__EMAT_PROVIDES__transit__fare__factor__
+~/ WORK FROM HOME PERCENT (0.0 to 0.5)
+~r3=__EMAT_PROVIDES__work__from__home__percent__
+~/ IVT SENSITIVITY FACTOR FOR AUTOS (0.8 to 1.0)
+~r4=__EMAT_PROVIDES__ivt__sensitivity__factor__
+~/ VOT FOR ASSIGNMENT - WORK (SET THIS TO 0.53 / IVT SENSITIVITY FACTOR)
+~r5=__EMAT_PROVIDES__vot__assign__work__
+~/ VOT FOR ASSIGNMENT - NONWORK (SET THIS TO 0.38 / IVT SENSITIVITY FACTOR)
+~r6=__EMAT_PROVIDES__vot__assign__nonwork__
+~/ SET CAPACITY FACTOR (0.9 to 1.5)
+~r11=__EMAT_PROVIDES__highway__capacity__factor__for__cav__
+~/ SET FREEWAY TOLL RATE (0.0 to ?? per mile)
+~r12=__EMAT_PROVIDES__freeway_toll_rate__
+~/
+~/**********************************************************************
+~/**********************************************************************
+~/
+~/
+~/
+~/
+~/**********************************************************************
+~/ EMAT Matrices
+~/**********************************************************************
+~/
+3.12
+~/***********************************************************************
+~/Parking Pricing Factor
+~/ range:  0 = no parking pricing, 1 = max parking pricing by zone
+~/
+2
+ms401
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+ms401
+prkfac
+Factor Applied to Parking Pricing Destination Matrix (0-1)
+%r1%
+~/
+~/***********************************************************************
+~/Transit Fares Factor
+~/ range:  0 = transit is free, 1 = regular transit fares
+~/
+2
+ms402
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+ms402
+farefac
+Factor Applied to Transit Fares Matrix (0-1)
+%r2%
+~/
+~/***********************************************************************
+~/Work From Home Percent
+~/ range:  0 = no one works from home, 0.5 = 50% of WFH eligible workers work from home
+~/
+2
+ms403
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+ms403
+wfhperc
+Work from Home Percent (0-0.5)
+%r3%
+~/
+~/***********************************************************************
+~/IVT Sensitivity Factor For Autos
+~/ range:  0.8 = reduce IVT sensitivity for autos by 20%, 1 = no adjustment
+~/
+2
+ms404
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+ms404
+ivtfac
+Factor Applied to IVT Sensitivity (0.8-1.0)
+%r4%
+~/
+~/***********************************************************************
+~/VOT for Assignment; Toll Weights
+~/ Base values:  ms84 = 0.53, ms85 = 0.38
+~/ Base values to be adjusted by dividing by IVT Sensitivity Factor
+~/ E.g., for 20% IVT adjustment:  ms84 = 0.53 / 0.8, ms85 = 0.38 / 0.8
+2
+ms84
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+ms84
+tmp84
+User Class 1 toll multiplier (minutes/$) - TOD 8
+%r5%
+~/
+~/***********************************************************************
+~/User Class 2 toll multiplier
+2
+ms85
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+ms85
+tmp85
+User Class 2 toll multiplier (minutes/$) - TOD 8
+%r6%
+~/
+~/***********************************************************************
+~/Copy of the original AM SOV time skim (prior to IVT adjustment)
+~/
+2
+mf491
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+mf491
+amtime2
+AM SOV time skim original, UNFACTORED for IVT Sensitivity adjustment
+0.0
+~/
+~/***********************************************************************
+~/Copy of the original MD SOV time skim (prior to IVT adjustment)
+~/
+2
+mf492
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+mf492
+mdtime2
+MD SOV time skim original, UNFACTORED for IVT Sensitivity adjustment
+0.0
+~/
+~/***********************************************************************
+~/Copy of the original AM HOV time skim (prior to IVT adjustment)
+~/
+2
+mf493
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+mf493
+amhovt2
+AM HOV time skim original, UNFACTORED for IVT Sensitivity adjustment
+0.0
+~/
+~/***********************************************************************
+~/Copy of the original MD HOV time skim (prior to IVT adjustment)
+~/
+2
+mf494
+~?e
+~$>err1
+yes
+~$>end1
+~:err1
+
+r
+~:end1
+1
+mf494
+mdhovt2
+MD HOV time skim original, UNFACTORED for IVT Sensitivity adjustment
+0.0
+~/
+q
+~/
+~/
+~/
+~/
+~/**********************************************************************
+~/**********************************************************************
+~/                EMAT Network Attributes
+~/  These get applied once for each network scenario
+~/  Base + 8 TOD scenarios
+~/**********************************************************************
+~/**********************************************************************
+~/
+~/ SET SCENARIO TO THE BASE SCENARIO 00
+s=%1%00
+~/
+~/**********************************************************************
+~/Highway Capacity Factor for CAVs
+~/ range:  0.9 = 10% CAVs, Reduce Highway Capacity; 1.5 = 80% CAVs, Increase Highway Cap by 50%
+~/
+2.42
+3
+@capfac
+~?e
+~$>err59
+y
+~$>end59
+~:err59
+
+~:end59
+2
+2
+@capfac
+Factor to Adjust Hwy Cap for CAVs
+%r11%
+~/
+~/**********************************************************************
+~/Create attribute for the original Highway Capacity Values
+~/ This is the original @emcap which gets adjusted
+~/ First try to initialize, if already created, we don't need to recreate or adjust value
+~/ If not already created, then create and set value to @emcap
+~/
+2
+2
+@emcap2
+~?e
+~$>err60
+Copy of Original @emcap
+0.0
+q
+2.41
+1
+y
+@emcap2
+n
+@emcap
+
+all
+2
+2
+q
+~$>end60
+~:err60
+
+q
+~:end60
+~/
+~/**********************************************************************
+~/Apply Highway Capacity Factor for CAVs
+~/ Multiply @emcap by @capfac for vdf 2, 4, 5
+~/
+2.41
+1
+y
+@emcap
+n
+@capfac*@emcap2
+
+vdf=2
+vdf=4
+vdf=5
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ Add Toll System Flag Variable
+~/ SET BATCHIN TO TOLL SYS FLAG FILE
+batchin=data/toll_system_flag.csv
+~/
+2.42
+3
+@tolsys
+~?e
+~$>err62
+y
+~$>end62
+~:err62
+
+~:end62
+2
+2
+@tolsys
+Toll System Flag
+0.0
+q
+~/
+~/**********************************************************************
+~/Read Toll System Flag Batchin
+~/
+2.41
+3
+@tolsys
+n
+all
+1,2,3
+~/data/toll_system_flag.csv
+y
+2
+y
+~/
+~/**********************************************************************
+~/Set mileage based tolls on vdf=2 links (only those not part of existing toll system)
+~/ start with @toll
+~/
+1
+y
+@toll
+n
+(length*%r12%*(@tolsys==0) +
+ @toll*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll2
+~/
+1
+y
+@toll2
+n
+(length*%r12%*(@tolsys==0)*1.25 +
+ @toll2*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll3
+~/
+1
+y
+@toll3
+n
+(length*%r12%*(@tolsys==0)*1.5 +
+ @toll3*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll4
+~/
+1
+y
+@toll4
+n
+(length*%r12%*(@tolsys==0)*2.0 +
+ @toll4*(@tolsys==1))
+
+vdf=2
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ SET SCENARIO TO THE SCENARIO 01
+s=%1%01
+~/
+~/**********************************************************************
+~/Highway Capacity Factor for CAVs
+~/ range:  0.9 = 10% CAVs, Reduce Highway Capacity; 1.5 = 80% CAVs, Increase Highway Cap by 50%
+~/
+2.42
+3
+@capfac
+~?e
+~$>err59
+y
+~$>end59
+~:err59
+
+~:end59
+2
+2
+@capfac
+Factor to Adjust Hwy Cap for CAVs
+%r11%
+~/
+~/**********************************************************************
+~/Create attribute for the original Highway Capacity Values
+~/ This is the original @emcap which gets adjusted
+~/ First try to initialize, if already created, we don't need to recreate or adjust value
+~/ If not already created, then create and set value to @emcap
+~/
+2
+2
+@emcap2
+~?e
+~$>err60
+Copy of Original @emcap
+0.0
+q
+2.41
+1
+y
+@emcap2
+n
+@emcap
+
+all
+2
+2
+q
+~$>end60
+~:err60
+
+q
+~:end60
+~/
+~/**********************************************************************
+~/Apply Highway Capacity Factor for CAVs
+~/ Multiply @emcap by @capfac for vdf 2, 4, 5
+~/
+2.41
+1
+y
+@emcap
+n
+@capfac*@emcap2
+
+vdf=2
+vdf=4
+vdf=5
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ Add Toll System Flag Variable
+~/ SET BATCHIN TO TOLL SYS FLAG FILE
+batchin=data/toll_system_flag.csv
+~/
+2.42
+3
+@tolsys
+~?e
+~$>err62
+y
+~$>end62
+~:err62
+
+~:end62
+2
+2
+@tolsys
+Toll System Flag
+0.0
+q
+~/
+~/**********************************************************************
+~/Read Toll System Flag Batchin
+~/
+2.41
+3
+@tolsys
+n
+all
+1,2,3
+~/data/toll_system_flag.csv
+y
+2
+y
+~/
+~/**********************************************************************
+~/Set mileage based tolls on vdf=2 links (only those not part of existing toll system)
+~/ start with @toll
+~/
+1
+y
+@toll
+n
+(length*%r12%*(@tolsys==0) +
+ @toll*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll2
+~/
+1
+y
+@toll2
+n
+(length*%r12%*(@tolsys==0)*1.25 +
+ @toll2*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll3
+~/
+1
+y
+@toll3
+n
+(length*%r12%*(@tolsys==0)*1.5 +
+ @toll3*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll4
+~/
+1
+y
+@toll4
+n
+(length*%r12%*(@tolsys==0)*2.0 +
+ @toll4*(@tolsys==1))
+
+vdf=2
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ SET SCENARIO TO SCENARIO 02
+s=%1%02
+~/
+~/**********************************************************************
+~/Highway Capacity Factor for CAVs
+~/ range:  0.9 = 10% CAVs, Reduce Highway Capacity; 1.5 = 80% CAVs, Increase Highway Cap by 50%
+~/
+2.42
+3
+@capfac
+~?e
+~$>err59
+y
+~$>end59
+~:err59
+
+~:end59
+2
+2
+@capfac
+Factor to Adjust Hwy Cap for CAVs
+%r11%
+~/
+~/**********************************************************************
+~/Create attribute for the original Highway Capacity Values
+~/ This is the original @emcap which gets adjusted
+~/ First try to initialize, if already created, we don't need to recreate or adjust value
+~/ If not already created, then create and set value to @emcap
+~/
+2
+2
+@emcap2
+~?e
+~$>err60
+Copy of Original @emcap
+0.0
+q
+2.41
+1
+y
+@emcap2
+n
+@emcap
+
+all
+2
+2
+q
+~$>end60
+~:err60
+
+q
+~:end60
+~/
+~/**********************************************************************
+~/Apply Highway Capacity Factor for CAVs
+~/ Multiply @emcap by @capfac for vdf 2, 4, 5
+~/
+2.41
+1
+y
+@emcap
+n
+@capfac*@emcap2
+
+vdf=2
+vdf=4
+vdf=5
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ Add Toll System Flag Variable
+~/ SET BATCHIN TO TOLL SYS FLAG FILE
+batchin=data/toll_system_flag.csv
+~/
+2.42
+3
+@tolsys
+~?e
+~$>err62
+y
+~$>end62
+~:err62
+
+~:end62
+2
+2
+@tolsys
+Toll System Flag
+0.0
+q
+~/
+~/**********************************************************************
+~/Read Toll System Flag Batchin
+~/
+2.41
+3
+@tolsys
+n
+all
+1,2,3
+~/data/toll_system_flag.csv
+y
+2
+y
+~/
+~/**********************************************************************
+~/Set mileage based tolls on vdf=2 links (only those not part of existing toll system)
+~/ start with @toll
+~/
+1
+y
+@toll
+n
+(length*%r12%*(@tolsys==0) +
+ @toll*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll2
+~/
+1
+y
+@toll2
+n
+(length*%r12%*(@tolsys==0)*1.25 +
+ @toll2*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll3
+~/
+1
+y
+@toll3
+n
+(length*%r12%*(@tolsys==0)*1.5 +
+ @toll3*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll4
+~/
+1
+y
+@toll4
+n
+(length*%r12%*(@tolsys==0)*2.0 +
+ @toll4*(@tolsys==1))
+
+vdf=2
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ SET SCENARIO TO SCENARIO 03
+s=%1%03
+~/
+~/**********************************************************************
+~/Highway Capacity Factor for CAVs
+~/ range:  0.9 = 10% CAVs, Reduce Highway Capacity; 1.5 = 80% CAVs, Increase Highway Cap by 50%
+~/
+2.42
+3
+@capfac
+~?e
+~$>err59
+y
+~$>end59
+~:err59
+
+~:end59
+2
+2
+@capfac
+Factor to Adjust Hwy Cap for CAVs
+%r11%
+~/
+~/**********************************************************************
+~/Create attribute for the original Highway Capacity Values
+~/ This is the original @emcap which gets adjusted
+~/ First try to initialize, if already created, we don't need to recreate or adjust value
+~/ If not already created, then create and set value to @emcap
+~/
+2
+2
+@emcap2
+~?e
+~$>err60
+Copy of Original @emcap
+0.0
+q
+2.41
+1
+y
+@emcap2
+n
+@emcap
+
+all
+2
+2
+q
+~$>end60
+~:err60
+
+q
+~:end60
+~/
+~/**********************************************************************
+~/Apply Highway Capacity Factor for CAVs
+~/ Multiply @emcap by @capfac for vdf 2, 4, 5
+~/
+2.41
+1
+y
+@emcap
+n
+@capfac*@emcap2
+
+vdf=2
+vdf=4
+vdf=5
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ Add Toll System Flag Variable
+~/ SET BATCHIN TO TOLL SYS FLAG FILE
+batchin=data/toll_system_flag.csv
+~/
+2.42
+3
+@tolsys
+~?e
+~$>err62
+y
+~$>end62
+~:err62
+
+~:end62
+2
+2
+@tolsys
+Toll System Flag
+0.0
+q
+~/
+~/**********************************************************************
+~/Read Toll System Flag Batchin
+~/
+2.41
+3
+@tolsys
+n
+all
+1,2,3
+~/data/toll_system_flag.csv
+y
+2
+y
+~/
+~/**********************************************************************
+~/Set mileage based tolls on vdf=2 links (only those not part of existing toll system)
+~/ start with @toll
+~/
+1
+y
+@toll
+n
+(length*%r12%*(@tolsys==0) +
+ @toll*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll2
+~/
+1
+y
+@toll2
+n
+(length*%r12%*(@tolsys==0)*1.25 +
+ @toll2*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll3
+~/
+1
+y
+@toll3
+n
+(length*%r12%*(@tolsys==0)*1.5 +
+ @toll3*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll4
+~/
+1
+y
+@toll4
+n
+(length*%r12%*(@tolsys==0)*2.0 +
+ @toll4*(@tolsys==1))
+
+vdf=2
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ SET SCENARIO TO SCENARIO 04
+s=%1%04
+~/
+~/**********************************************************************
+~/Highway Capacity Factor for CAVs
+~/ range:  0.9 = 10% CAVs, Reduce Highway Capacity; 1.5 = 80% CAVs, Increase Highway Cap by 50%
+~/
+2.42
+3
+@capfac
+~?e
+~$>err59
+y
+~$>end59
+~:err59
+
+~:end59
+2
+2
+@capfac
+Factor to Adjust Hwy Cap for CAVs
+%r11%
+~/
+~/**********************************************************************
+~/Create attribute for the original Highway Capacity Values
+~/ This is the original @emcap which gets adjusted
+~/ First try to initialize, if already created, we don't need to recreate or adjust value
+~/ If not already created, then create and set value to @emcap
+~/
+2
+2
+@emcap2
+~?e
+~$>err60
+Copy of Original @emcap
+0.0
+q
+2.41
+1
+y
+@emcap2
+n
+@emcap
+
+all
+2
+2
+q
+~$>end60
+~:err60
+
+q
+~:end60
+~/
+~/**********************************************************************
+~/Apply Highway Capacity Factor for CAVs
+~/ Multiply @emcap by @capfac for vdf 2, 4, 5
+~/
+2.41
+1
+y
+@emcap
+n
+@capfac*@emcap2
+
+vdf=2
+vdf=4
+vdf=5
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ Add Toll System Flag Variable
+~/ SET BATCHIN TO TOLL SYS FLAG FILE
+batchin=data/toll_system_flag.csv
+~/
+2.42
+3
+@tolsys
+~?e
+~$>err62
+y
+~$>end62
+~:err62
+
+~:end62
+2
+2
+@tolsys
+Toll System Flag
+0.0
+q
+~/
+~/**********************************************************************
+~/Read Toll System Flag Batchin
+~/
+2.41
+3
+@tolsys
+n
+all
+1,2,3
+~/data/toll_system_flag.csv
+y
+2
+y
+~/
+~/**********************************************************************
+~/Set mileage based tolls on vdf=2 links (only those not part of existing toll system)
+~/ start with @toll
+~/
+1
+y
+@toll
+n
+(length*%r12%*(@tolsys==0) +
+ @toll*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll2
+~/
+1
+y
+@toll2
+n
+(length*%r12%*(@tolsys==0)*1.25 +
+ @toll2*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll3
+~/
+1
+y
+@toll3
+n
+(length*%r12%*(@tolsys==0)*1.5 +
+ @toll3*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll4
+~/
+1
+y
+@toll4
+n
+(length*%r12%*(@tolsys==0)*2.0 +
+ @toll4*(@tolsys==1))
+
+vdf=2
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ SET SCENARIO TO SCENARIO 05
+s=%1%05
+~/
+~/**********************************************************************
+~/Highway Capacity Factor for CAVs
+~/ range:  0.9 = 10% CAVs, Reduce Highway Capacity; 1.5 = 80% CAVs, Increase Highway Cap by 50%
+~/
+2.42
+3
+@capfac
+~?e
+~$>err59
+y
+~$>end59
+~:err59
+
+~:end59
+2
+2
+@capfac
+Factor to Adjust Hwy Cap for CAVs
+%r11%
+~/
+~/**********************************************************************
+~/Create attribute for the original Highway Capacity Values
+~/ This is the original @emcap which gets adjusted
+~/ First try to initialize, if already created, we don't need to recreate or adjust value
+~/ If not already created, then create and set value to @emcap
+~/
+2
+2
+@emcap2
+~?e
+~$>err60
+Copy of Original @emcap
+0.0
+q
+2.41
+1
+y
+@emcap2
+n
+@emcap
+
+all
+2
+2
+q
+~$>end60
+~:err60
+
+q
+~:end60
+~/
+~/**********************************************************************
+~/Apply Highway Capacity Factor for CAVs
+~/ Multiply @emcap by @capfac for vdf 2, 4, 5
+~/
+2.41
+1
+y
+@emcap
+n
+@capfac*@emcap2
+
+vdf=2
+vdf=4
+vdf=5
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ Add Toll System Flag Variable
+~/ SET BATCHIN TO TOLL SYS FLAG FILE
+batchin=data/toll_system_flag.csv
+~/
+2.42
+3
+@tolsys
+~?e
+~$>err62
+y
+~$>end62
+~:err62
+
+~:end62
+2
+2
+@tolsys
+Toll System Flag
+0.0
+q
+~/
+~/**********************************************************************
+~/Read Toll System Flag Batchin
+~/
+2.41
+3
+@tolsys
+n
+all
+1,2,3
+~/data/toll_system_flag.csv
+y
+2
+y
+~/
+~/**********************************************************************
+~/Set mileage based tolls on vdf=2 links (only those not part of existing toll system)
+~/ start with @toll
+~/
+1
+y
+@toll
+n
+(length*%r12%*(@tolsys==0) +
+ @toll*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll2
+~/
+1
+y
+@toll2
+n
+(length*%r12%*(@tolsys==0)*1.25 +
+ @toll2*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll3
+~/
+1
+y
+@toll3
+n
+(length*%r12%*(@tolsys==0)*1.5 +
+ @toll3*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll4
+~/
+1
+y
+@toll4
+n
+(length*%r12%*(@tolsys==0)*2.0 +
+ @toll4*(@tolsys==1))
+
+vdf=2
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ SET SCENARIO TO SCENARIO 06
+s=%1%06
+~/
+~/**********************************************************************
+~/Highway Capacity Factor for CAVs
+~/ range:  0.9 = 10% CAVs, Reduce Highway Capacity; 1.5 = 80% CAVs, Increase Highway Cap by 50%
+~/
+2.42
+3
+@capfac
+~?e
+~$>err59
+y
+~$>end59
+~:err59
+
+~:end59
+2
+2
+@capfac
+Factor to Adjust Hwy Cap for CAVs
+%r11%
+~/
+~/**********************************************************************
+~/Create attribute for the original Highway Capacity Values
+~/ This is the original @emcap which gets adjusted
+~/ First try to initialize, if already created, we don't need to recreate or adjust value
+~/ If not already created, then create and set value to @emcap
+~/
+2
+2
+@emcap2
+~?e
+~$>err60
+Copy of Original @emcap
+0.0
+q
+2.41
+1
+y
+@emcap2
+n
+@emcap
+
+all
+2
+2
+q
+~$>end60
+~:err60
+
+q
+~:end60
+~/
+~/**********************************************************************
+~/Apply Highway Capacity Factor for CAVs
+~/ Multiply @emcap by @capfac for vdf 2, 4, 5
+~/
+2.41
+1
+y
+@emcap
+n
+@capfac*@emcap2
+
+vdf=2
+vdf=4
+vdf=5
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ Add Toll System Flag Variable
+~/ SET BATCHIN TO TOLL SYS FLAG FILE
+batchin=data/toll_system_flag.csv
+~/
+2.42
+3
+@tolsys
+~?e
+~$>err62
+y
+~$>end62
+~:err62
+
+~:end62
+2
+2
+@tolsys
+Toll System Flag
+0.0
+q
+~/
+~/**********************************************************************
+~/Read Toll System Flag Batchin
+~/
+2.41
+3
+@tolsys
+n
+all
+1,2,3
+~/data/toll_system_flag.csv
+y
+2
+y
+~/
+~/**********************************************************************
+~/Set mileage based tolls on vdf=2 links (only those not part of existing toll system)
+~/ start with @toll
+~/
+1
+y
+@toll
+n
+(length*%r12%*(@tolsys==0) +
+ @toll*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll2
+~/
+1
+y
+@toll2
+n
+(length*%r12%*(@tolsys==0)*1.25 +
+ @toll2*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll3
+~/
+1
+y
+@toll3
+n
+(length*%r12%*(@tolsys==0)*1.5 +
+ @toll3*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll4
+~/
+1
+y
+@toll4
+n
+(length*%r12%*(@tolsys==0)*2.0 +
+ @toll4*(@tolsys==1))
+
+vdf=2
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ SET SCENARIO TO SCENARIO 07
+s=%1%07
+~/
+~/**********************************************************************
+~/Highway Capacity Factor for CAVs
+~/ range:  0.9 = 10% CAVs, Reduce Highway Capacity; 1.5 = 80% CAVs, Increase Highway Cap by 50%
+~/
+2.42
+3
+@capfac
+~?e
+~$>err59
+y
+~$>end59
+~:err59
+
+~:end59
+2
+2
+@capfac
+Factor to Adjust Hwy Cap for CAVs
+%r11%
+~/
+~/**********************************************************************
+~/Create attribute for the original Highway Capacity Values
+~/ This is the original @emcap which gets adjusted
+~/ First try to initialize, if already created, we don't need to recreate or adjust value
+~/ If not already created, then create and set value to @emcap
+~/
+2
+2
+@emcap2
+~?e
+~$>err60
+Copy of Original @emcap
+0.0
+q
+2.41
+1
+y
+@emcap2
+n
+@emcap
+
+all
+2
+2
+q
+~$>end60
+~:err60
+
+q
+~:end60
+~/
+~/**********************************************************************
+~/Apply Highway Capacity Factor for CAVs
+~/ Multiply @emcap by @capfac for vdf 2, 4, 5
+~/
+2.41
+1
+y
+@emcap
+n
+@capfac*@emcap2
+
+vdf=2
+vdf=4
+vdf=5
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ Add Toll System Flag Variable
+~/ SET BATCHIN TO TOLL SYS FLAG FILE
+batchin=data/toll_system_flag.csv
+~/
+2.42
+3
+@tolsys
+~?e
+~$>err62
+y
+~$>end62
+~:err62
+
+~:end62
+2
+2
+@tolsys
+Toll System Flag
+0.0
+q
+~/
+~/**********************************************************************
+~/Read Toll System Flag Batchin
+~/
+2.41
+3
+@tolsys
+n
+all
+1,2,3
+~/data/toll_system_flag.csv
+y
+2
+y
+~/
+~/**********************************************************************
+~/Set mileage based tolls on vdf=2 links (only those not part of existing toll system)
+~/ start with @toll
+~/
+1
+y
+@toll
+n
+(length*%r12%*(@tolsys==0) +
+ @toll*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll2
+~/
+1
+y
+@toll2
+n
+(length*%r12%*(@tolsys==0)*1.25 +
+ @toll2*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll3
+~/
+1
+y
+@toll3
+n
+(length*%r12%*(@tolsys==0)*1.5 +
+ @toll3*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll4
+~/
+1
+y
+@toll4
+n
+(length*%r12%*(@tolsys==0)*2.0 +
+ @toll4*(@tolsys==1))
+
+vdf=2
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ SET SCENARIO TO SCENARIO 08
+s=%1%08
+~/
+~/**********************************************************************
+~/Highway Capacity Factor for CAVs
+~/ range:  0.9 = 10% CAVs, Reduce Highway Capacity; 1.5 = 80% CAVs, Increase Highway Cap by 50%
+~/
+2.42
+3
+@capfac
+~?e
+~$>err59
+y
+~$>end59
+~:err59
+
+~:end59
+2
+2
+@capfac
+Factor to Adjust Hwy Cap for CAVs
+%r11%
+~/
+~/**********************************************************************
+~/Create attribute for the original Highway Capacity Values
+~/ This is the original @emcap which gets adjusted
+~/ First try to initialize, if already created, we don't need to recreate or adjust value
+~/ If not already created, then create and set value to @emcap
+~/
+2
+2
+@emcap2
+~?e
+~$>err60
+Copy of Original @emcap
+0.0
+q
+2.41
+1
+y
+@emcap2
+n
+@emcap
+
+all
+2
+2
+q
+~$>end60
+~:err60
+
+q
+~:end60
+~/
+~/**********************************************************************
+~/Apply Highway Capacity Factor for CAVs
+~/ Multiply @emcap by @capfac for vdf 2, 4, 5
+~/
+2.41
+1
+y
+@emcap
+n
+@capfac*@emcap2
+
+vdf=2
+vdf=4
+vdf=5
+
+2
+2
+q
+~/
+~/**********************************************************************
+~/ Add Toll System Flag Variable
+~/ SET BATCHIN TO TOLL SYS FLAG FILE
+batchin=data/toll_system_flag.csv
+~/
+2.42
+3
+@tolsys
+~?e
+~$>err62
+y
+~$>end62
+~:err62
+
+~:end62
+2
+2
+@tolsys
+Toll System Flag
+0.0
+q
+~/
+~/**********************************************************************
+~/Read Toll System Flag Batchin
+~/
+2.41
+3
+@tolsys
+n
+all
+1,2,3
+~/data/toll_system_flag.csv
+y
+2
+y
+~/
+~/**********************************************************************
+~/Set mileage based tolls on vdf=2 links (only those not part of existing toll system)
+~/ start with @toll
+~/
+1
+y
+@toll
+n
+(length*%r12%*(@tolsys==0) +
+ @toll*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll2
+~/
+1
+y
+@toll2
+n
+(length*%r12%*(@tolsys==0)*1.25 +
+ @toll2*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll3
+~/
+1
+y
+@toll3
+n
+(length*%r12%*(@tolsys==0)*1.5 +
+ @toll3*(@tolsys==1))
+
+vdf=2
+
+2
+2
+~/
+~/ @toll4
+~/
+1
+y
+@toll4
+n
+(length*%r12%*(@tolsys==0)*2.0 +
+ @toll4*(@tolsys==1))
+
+vdf=2
+
+2
+2
+q
+~o=6
+reports=reports
+batchin=batchin
+~/**********************************************************************
+~?y=1
+q
+q
+

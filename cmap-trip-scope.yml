@@ -1,0 +1,2311 @@
+---
+# EMAT Road Test Scope Definition
+
+scope:
+    name: CMAP_Trip_2020
+    desc: CMAP Trip Based Model Exploration
+
+
+inputs:
+
+    global_loops:
+        shortname: Feedback Loops
+        ptype: constant
+        desc: Number of global feedback iterations
+        dtype: int
+        default: 4
+        dist: constant
+        corr: []
+
+    highway_cap:
+        # multiplier on highway capacity
+        shortname: Highway Capacity
+        ptype: uncertainty
+        dtype: float
+        default: 1.0
+        min: 0.9
+        max: 1.5
+        dist: uniform
+
+    park_price:
+        # multiplier on parking pricing
+        shortname: Parking Pricing
+        ptype: policy lever
+        dtype: float
+        default: 0.5
+        min: 0.0
+        max: 1.0
+        dist: uniform
+
+    transit_fares:
+        # this is a multiplier on existing transit fares.
+        shortname: Transit Fares
+        ptype: policy lever
+        dtype: float
+        default: 1.0
+        min: 0.0
+        max: 2.0
+        dist: uniform
+
+    telecommuting:
+        # knock out this percentage of trips from HBW trips for eligible industries.
+        shortname: Telecommuting
+        ptype: uncertainty
+        dtype: float
+        default: 0.1
+        min: 0.0
+        max: 0.5
+        dist: uniform
+
+    fuel_cost:
+        desc: Fuel cost in dollars per gallon.
+        shortname: Fuel Cost Factor
+        ptype: uncertainty
+        dtype: float
+        default: 3.0
+        min: 2.5
+        max: 6.0
+        dist: uniform
+        #corr:
+        #    fuel_economy: -1.0
+
+    # NOTE:  Because we are perfectly negative-correlating fuel economy with fuel cost,
+    #        this treatment is being moved into the model setup code instead of treating
+    #        it as a separate variable here.
+    # fuel_economy:
+    #    # Fuel_economy varies by speed.  Fuel use per mile will be factored by this percentage.
+    #    desc: Percentage improvement in fuel economy over present (miles per gallon at any given speed).
+    #    shortname: Fuel Economy Factor
+    #    ptype: uncertainty
+    #    dtype: float
+    #    default: 0.7
+    #    min: 0.6  # 60% better miles per gallon
+    #    max: 0.8  # 80% better miles per gallon
+    #    dist: uniform
+    #    corr:
+    #        fuel_cost: -1.0
+
+    vmt_charge:
+        # vmt_charge varies by speed.  All costs will be factored up or down by this percentage.
+        shortname: VMT Charge Factor
+        ptype: uncertainty
+        dtype: float
+        default: 0.00
+        min: 0.00
+        max: 0.10
+        dist: uniform
+
+    expressway_toll:
+        # This will be a continuous variable giving a toll-per-mile on expressways that are presently free
+        # The existing tolled "tollway" and "skyway" links will not have toll manipulation, just stay as-is
+        # So, all VDF 2 links (expressways) get tolls-per-mile of this value?
+        shortname: Expressway Tolling
+        ptype: policy lever
+        dtype: float
+        default: 0.1
+        min: 0.0
+        max: 0.4
+        dist: uniform
+
+    land_use:
+        shortname: Land Use Scenario
+        ptype: uncertainty
+        dtype: cat
+        default: base
+        values:
+            - base
+            - alt1
+
+    vot_sensitivity:
+        shortname: Value of Time Response
+        ptype: uncertainty
+        dtype: float
+        default: 0.8
+        min: 0.8
+        max: 1.0
+        dist: uniform
+
+
+outputs:
+
+    ### Run VMT Statistics ###
+
+    Chicago_Expressway_VMT:
+        kind: info
+
+    Chicago_Arterial_VMT:
+        kind: info
+
+    Chicago_RampToll_VMT:
+        kind: info
+
+    Chicago_Centroid_VMT:
+        kind: info
+
+    Chicago_Total_District_VMT:
+        kind: info
+
+    Cook_balance_Expressway_VMT:
+        kind: info
+
+    Cook_balance_Arterial_VMT:
+        kind: info
+
+    Cook_balance_RampToll_VMT:
+        kind: info
+
+    Cook_balance_Centroid_VMT:
+        kind: info
+
+    Cook_balance_Total_District_VMT:
+        kind: info
+
+    DuPage_Expressway_VMT:
+        kind: info
+
+    DuPage_Arterial_VMT:
+        kind: info
+
+    DuPage_RampToll_VMT:
+        kind: info
+
+    DuPage_Centroid_VMT:
+        kind: info
+
+    DuPage_Total_District_VMT:
+        kind: info
+
+    Kane_Expressway_VMT:
+        kind: info
+
+    Kane_Arterial_VMT:
+        kind: info
+
+    Kane_RampToll_VMT:
+        kind: info
+
+    Kane_Centroid_VMT:
+        kind: info
+
+    Kane_Total_District_VMT:
+        kind: info
+
+    Kendall_Expressway_VMT:
+        kind: info
+
+    Kendall_Arterial_VMT:
+        kind: info
+
+    Kendall_RampToll_VMT:
+        kind: info
+
+    Kendall_Centroid_VMT:
+        kind: info
+
+    Kendall_Total_District_VMT:
+        kind: info
+
+    Lake_Expressway_VMT:
+        kind: info
+
+    Lake_Arterial_VMT:
+        kind: info
+
+    Lake_RampToll_VMT:
+        kind: info
+
+    Lake_Centroid_VMT:
+        kind: info
+
+    Lake_Total_District_VMT:
+        kind: info
+
+    McHenry_Expressway_VMT:
+        kind: info
+
+    McHenry_Arterial_VMT:
+        kind: info
+
+    McHenry_RampToll_VMT:
+        kind: info
+
+    McHenry_Centroid_VMT:
+        kind: info
+
+    McHenry_Total_District_VMT:
+        kind: info
+
+    Will_Expressway_VMT:
+        kind: info
+
+    Will_Arterial_VMT:
+        kind: info
+
+    Will_RampToll_VMT:
+        kind: info
+
+    Will_Centroid_VMT:
+        kind: info
+
+    Will_Total_District_VMT:
+        kind: info
+
+    Illinois_balance_Expressway_VMT:
+        kind: info
+
+    Illinois_balance_Arterial_VMT:
+        kind: info
+
+    Illinois_balance_RampToll_VMT:
+        kind: info
+
+    Illinois_balance_Centroid_VMT:
+        kind: info
+
+    Illinois_balance_Total_District_VMT:
+        kind: info
+
+    Indiana_Expressway_VMT:
+        kind: info
+
+    Indiana_Arterial_VMT:
+        kind: info
+
+    Indiana_RampToll_VMT:
+        kind: info
+
+    Indiana_Centroid_VMT:
+        kind: info
+
+    Indiana_Total_District_VMT:
+        kind: info
+
+    Wisconsin_Expressway_VMT:
+        kind: info
+
+    Wisconsin_Arterial_VMT:
+        kind: info
+
+    Wisconsin_RampToll_VMT:
+        kind: info
+
+    Wisconsin_Centroid_VMT:
+        kind: info
+
+    Wisconsin_Total_District_VMT:
+        kind: info
+
+    ### Final Run Statistics ###
+
+    ENTIRE_NETWORK_Person_Trips_HW_Total_Person_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Person_Trips_HW_Auto_Person_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Person_Trips_HW_Transit_Person_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Person_Trips_HO_Total_Person_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Person_Trips_HO_Auto_Person_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Person_Trips_HO_Transit_Person_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Person_Trips_NH_Total_Person_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Person_Trips_NH_Auto_Person_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Person_Trips_NH_Transit_Person_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Transit_Share_HW_Transit_Share:
+        kind: info
+
+    ENTIRE_NETWORK_Transit_Share_HO_Transit_Share:
+        kind: info
+
+    ENTIRE_NETWORK_Transit_Share_NH_Transit_Share:
+        kind: info
+
+    ENTIRE_NETWORK_Transit_Share_Overall_Transit_Share:
+        kind: info
+
+    ENTIRE_NETWORK_Trip_Distance_HW_Trip_Average_Miles:
+        kind: info
+
+    ENTIRE_NETWORK_Trip_Distance_HO_Trip_Average_Miles:
+        kind: info
+
+    ENTIRE_NETWORK_Trip_Distance_NH_Trip_Average_Miles:
+        kind: info
+
+    ENTIRE_NETWORK_Trip_Duration_HW_Trip_Average_Minutes:
+        kind: info
+
+    ENTIRE_NETWORK_Trip_Duration_HO_Trip_Average_Minutes:
+        kind: info
+
+    ENTIRE_NETWORK_Trip_Duration_NH_Trip_Average_Minutes:
+        kind: info
+
+    ENTIRE_NETWORK_Other_Trips_B_Plate_Truck_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Other_Trips_Light_Truck_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Other_Trips_Medium_Truck_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Other_Trips_Heavy_Truck_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Other_Trips_POE_Auto_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Other_Trips_POE_Truck_Trips:
+        kind: info
+
+    ENTIRE_NETWORK_Other_Trips_POE_Airport_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Person_Trips_HW_Total_Person_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Person_Trips_HW_Auto_Person_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Person_Trips_HW_Transit_Person_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Person_Trips_HO_Total_Person_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Person_Trips_HO_Auto_Person_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Person_Trips_HO_Transit_Person_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Person_Trips_NH_Total_Person_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Person_Trips_NH_Auto_Person_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Person_Trips_NH_Transit_Person_Trips:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Transit_Share_HW_Transit_Share:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Transit_Share_HO_Transit_Share:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Transit_Share_NH_Transit_Share:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Transit_Share_Overall_Transit_Share:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Trip_Distance_HW_Trip_Average_Miles:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Trip_Distance_HO_Trip_Average_Miles:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Trip_Distance_NH_Trip_Average_Miles:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Trip_Duration_HW_Trip_Average_Minutes:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Trip_Duration_HO_Trip_Average_Minutes:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Trip_Duration_NH_Trip_Average_Minutes:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Vehicle_Class_VMT_Auto_VMT:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Vehicle_Class_VMT_B_Plate_Truck_VMT:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Vehicle_Class_VMT_Light_Truck_VMT:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Vehicle_Class_VMT_Medium_Truck_VMT:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Vehicle_Class_VMT_Heavy_Truck_VMT:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Vehicle_Class_VMT_Bus_VMT:
+        kind: info
+
+    NON_ATTAINMENT_AREA_Vehicle_Class_VMT_All_VMT:
+        kind: info
+
+    ### TRANSIT NONWORK ###
+
+    #    NonWork_Pace_Board:
+    #        kind: info
+    #
+    #    NonWork_Pace_PMT:
+    #        kind: info
+    #
+    #    NonWork_Pace_PHT:
+    #        kind: info
+    #
+    #    NonWork_CTA_Bus_Board:
+    #        kind: info
+    #
+    #    NonWork_CTA_Bus_PMT:
+    #        kind: info
+    #
+    #    NonWork_CTA_Bus_PHT:
+    #        kind: info
+    #
+    #    NonWork_CTA_Rail_Board:
+    #        kind: info
+    #
+    #    NonWork_CTA_Rail_PMT:
+    #        kind: info
+    #
+    #    NonWork_CTA_Rail_PHT:
+    #        kind: info
+    #
+    #    NonWork_Metra_Board:
+    #        kind: info
+    #
+    #    NonWork_Metra_PMT:
+    #        kind: info
+    #
+    #    NonWork_Metra_PHT:
+    #        kind: info
+    #
+    #    NonWork_Pace_SegMi:
+    #        kind: info
+    #
+    #    NonWork_CTA_BUS_SeqMi:
+    #        kind: info
+    #
+    #    NonWork_CTA_Rail_SegMi:
+    #        kind: info
+    #
+    #    NonWork_Metra_SegMi:
+    #        kind: info
+    #
+    #    NonWork_Work_Auto:
+    #        kind: info
+    #
+    #    NonWork_Nonwork_Auto:
+    #        kind: info
+    #
+    #    NonWork_Work_Tran:
+    #        kind: info
+    #
+    #    NonWork_Nonwork_tran:
+    #        kind: info
+    #
+    #    NonWork_Trucks_tot:
+    #        kind: info
+    #
+    #    NonWork_Blue_Board:
+    #        kind: info
+    #
+    #    NonWork_Brown_Board:
+    #        kind: info
+    #
+    #    NonWork_Green_Board:
+    #        kind: info
+    #
+    #    NonWork_Red_Board:
+    #        kind: info
+    #
+    #    NonWork_Yellow_Board:
+    #        kind: info
+    #
+    #    NonWork_Purple_Board:
+    #        kind: info
+    #
+    #    NonWork_Pink_Board:
+    #        kind: info
+    #
+    #    NonWork_Orange_Board:
+    #        kind: info
+    #
+    #    NonWork_Blue_PMT:
+    #        kind: info
+    #
+    #    NonWork_Brown_PMT:
+    #        kind: info
+    #
+    #    NonWork_Green_PMT:
+    #        kind: info
+    #
+    #    NonWork_Red_PMT:
+    #        kind: info
+    #
+    #    NonWork_Yellow_PMT:
+    #        kind: info
+    #
+    #    NonWork_Purple_PMT:
+    #        kind: info
+    #
+    #    NonWork_Pink_PMT:
+    #        kind: info
+    #
+    #    NonWork_Orange_PMT:
+    #        kind: info
+    #
+    #    NonWork_BNSF_Board:
+    #        kind: info
+    #
+    #    NonWork_Hert_Board:
+    #        kind: info
+    #
+    #    NonWork_MED_Board:
+    #        kind: info
+    #
+    #    NonWork_MD_N_Board:
+    #        kind: info
+    #
+    #    NonWork_MDW_Board:
+    #        kind: info
+    #
+    #    NonWork_NCS_Board:
+    #        kind: info
+    #
+    #    NonWork_UP_NW_Board:
+    #        kind: info
+    #
+    #    NonWork_RID_Board:
+    #        kind: info
+    #
+    #    NonWork_CSSSB_Board:
+    #        kind: info
+    #
+    #    NonWork_SWS_Board:
+    #        kind: info
+    #
+    #    NonWork_UP_N_Board:
+    #        kind: info
+    #
+    #    NonWork_UP_W_Board:
+    #        kind: info
+    #
+    #    NonWork_BNSF_PMT:
+    #        kind: info
+    #
+    #    NonWork_Hert_PMT:
+    #        kind: info
+    #
+    #    NonWork_MED_PMT:
+    #        kind: info
+    #
+    #    NonWork_MD_N_PMT:
+    #        kind: info
+    #
+    #    NonWork_MDW_PMT:
+    #        kind: info
+    #
+    #    NonWork_NCS_PMT:
+    #        kind: info
+    #
+    #    NonWork_UP_NW_PMT:
+    #        kind: info
+    #
+    #    NonWork_RID_PMT:
+    #        kind: info
+    #
+    #    NonWork_CSSSB_PMT:
+    #        kind: info
+    #
+    #    NonWork_SWS_PMT:
+    #        kind: info
+    #
+    #    NonWork_UP_N_PMT:
+    #        kind: info
+    #
+    #    NonWork_UP_W_PMT:
+    #        kind: info
+    #
+    #    ### TRANSIT WORK ###
+    #
+    #    Work_Pace_Board:
+    #        kind: info
+    #
+    #    Work_Pace_PMT:
+    #        kind: info
+    #
+    #    Work_Pace_PHT:
+    #        kind: info
+    #
+    #    Work_CTA_Bus_Board:
+    #        kind: info
+    #
+    #    Work_CTA_Bus_PMT:
+    #        kind: info
+    #
+    #    Work_CTA_Bus_PHT:
+    #        kind: info
+    #
+    #    Work_CTA_Rail_Board:
+    #        kind: info
+    #
+    #    Work_CTA_Rail_PMT:
+    #        kind: info
+    #
+    #    Work_CTA_Rail_PHT:
+    #        kind: info
+    #
+    #    Work_Metra_Board:
+    #        kind: info
+    #
+    #    Work_Metra_PMT:
+    #        kind: info
+    #
+    #    Work_Metra_PHT:
+    #        kind: info
+    #
+    #    Work_Pace_SegMi:
+    #        kind: info
+    #
+    #    Work_CTA_BUS_SeqMi:
+    #        kind: info
+    #
+    #    Work_CTA_Rail_SegMi:
+    #        kind: info
+    #
+    #    Work_Metra_SegMi:
+    #        kind: info
+    #
+    #    Work_Work_Auto:
+    #        kind: info
+    #
+    #    Work_Nonwork_Auto:
+    #        kind: info
+    #
+    #    Work_Work_Tran:
+    #        kind: info
+    #
+    #    Work_Nonwork_tran:
+    #        kind: info
+    #
+    #    Work_Trucks_tot:
+    #        kind: info
+    #
+    #    Work_Blue_Board:
+    #        kind: info
+    #
+    #    Work_Brown_Board:
+    #        kind: info
+    #
+    #    Work_Green_Board:
+    #        kind: info
+    #
+    #    Work_Red_Board:
+    #        kind: info
+    #
+    #    Work_Yellow_Board:
+    #        kind: info
+    #
+    #    Work_Purple_Board:
+    #        kind: info
+    #
+    #    Work_Pink_Board:
+    #        kind: info
+    #
+    #    Work_Orange_Board:
+    #        kind: info
+    #
+    #    Work_Blue_PMT:
+    #        kind: info
+    #
+    #    Work_Brown_PMT:
+    #        kind: info
+    #
+    #    Work_Green_PMT:
+    #        kind: info
+    #
+    #    Work_Red_PMT:
+    #        kind: info
+    #
+    #    Work_Yellow_PMT:
+    #        kind: info
+    #
+    #    Work_Purple_PMT:
+    #        kind: info
+    #
+    #    Work_Pink_PMT:
+    #        kind: info
+    #
+    #    Work_Orange_PMT:
+    #        kind: info
+    #
+    #    Work_BNSF_Board:
+    #        kind: info
+    #
+    #    Work_Hert_Board:
+    #        kind: info
+    #
+    #    Work_MED_Board:
+    #        kind: info
+    #
+    #    Work_MD_N_Board:
+    #        kind: info
+    #
+    #    Work_MDW_Board:
+    #        kind: info
+    #
+    #    Work_NCS_Board:
+    #        kind: info
+    #
+    #    Work_UP_NW_Board:
+    #        kind: info
+    #
+    #    Work_RID_Board:
+    #        kind: info
+    #
+    #    Work_CSSSB_Board:
+    #        kind: info
+    #
+    #    Work_SWS_Board:
+    #        kind: info
+    #
+    #    Work_UP_N_Board:
+    #        kind: info
+    #
+    #    Work_UP_W_Board:
+    #        kind: info
+    #
+    #    Work_BNSF_PMT:
+    #        kind: info
+    #
+    #    Work_Hert_PMT:
+    #        kind: info
+    #
+    #    Work_MED_PMT:
+    #        kind: info
+    #
+    #    Work_MD_N_PMT:
+    #        kind: info
+    #
+    #    Work_MDW_PMT:
+    #        kind: info
+    #
+    #    Work_NCS_PMT:
+    #        kind: info
+    #
+    #    Work_UP_NW_PMT:
+    #        kind: info
+    #
+    #    Work_RID_PMT:
+    #        kind: info
+    #
+    #    Work_CSSSB_PMT:
+    #        kind: info
+    #
+    #    Work_SWS_PMT:
+    #        kind: info
+    #
+    #    Work_UP_N_PMT:
+    #        kind: info
+    #
+    #    Work_UP_W_PMT:
+    #        kind: info
+
+    ### EJ ###
+
+    EJ_Person_Trips_HWej_Tot_Per_Trips:
+        kind: info
+
+    EJ_Person_Trips_HWej_Aut_Per_Trips:
+        kind: info
+
+    EJ_Person_Trips_HWej_Tra_Per_Trips:
+        kind: info
+
+    EJ_Person_Trips_HOej_Tot_Per_Trips:
+        kind: info
+
+    EJ_Person_Trips_HOej_Aut_Per_Trips:
+        kind: info
+
+    EJ_Person_Trips_HOej_Tra_Per_Trips:
+        kind: info
+
+    EJ_Person_Trips_NHej_Tot_Per_Trips:
+        kind: info
+
+    EJ_Person_Trips_NHej_Aut_Per_Trips:
+        kind: info
+
+    EJ_Person_Trips_NHej_Tra_Per_Trips:
+        kind: info
+
+    EJ_Transit_Share_HWej_Tran_Shr:
+        kind: info
+
+    EJ_Transit_Share_HOej_Tran_Shr:
+        kind: info
+
+    EJ_Transit_Share_NHej_Tran_Shr:
+        kind: info
+
+    EJ_Transit_Share_Totej_Tran_Shr:
+        kind: info
+
+    EJ_Average_Trip_Time_HWej_Aut_Avg_Min:
+        kind: info
+
+    EJ_Average_Trip_Time_HOej_Aut_Avg_Min:
+        kind: info
+
+    EJ_Average_Trip_Time_NHej_Aut_Avg_Min:
+        kind: info
+
+    Average_EJ_TRANSIT_Trip_Time_HWej_Trn_Avg_Min:
+        kind: info
+
+    Average_EJ_TRANSIT_Trip_Time_HOej_Trn_Avg_Min:
+        kind: info
+
+    Average_EJ_TRANSIT_Trip_Time_NHej_trn_Avg_Min:
+        kind: info
+
+    ### Interchange Times ###
+
+    mf44_amtime_311_to_24:
+        kind: info
+
+    mf44_amtime_311_to_125:
+        kind: info
+
+    mf44_amtime_311_to_511:
+        kind: info
+
+    mf44_amtime_311_to_2049:
+        kind: info
+
+    mf44_amtime_384_to_24:
+        kind: info
+
+    mf44_amtime_384_to_125:
+        kind: info
+
+    mf44_amtime_384_to_511:
+        kind: info
+
+    mf44_amtime_384_to_2049:
+        kind: info
+
+    mf44_amtime_623_to_24:
+        kind: info
+
+    mf44_amtime_623_to_125:
+        kind: info
+
+    mf44_amtime_623_to_511:
+        kind: info
+
+    mf44_amtime_623_to_2049:
+        kind: info
+
+    mf44_amtime_1636_to_24:
+        kind: info
+
+    mf44_amtime_1636_to_125:
+        kind: info
+
+    mf44_amtime_1636_to_511:
+        kind: info
+
+    mf44_amtime_1636_to_2049:
+        kind: info
+
+    mf44_amtime_2004_to_24:
+        kind: info
+
+    mf44_amtime_2004_to_125:
+        kind: info
+
+    mf44_amtime_2004_to_511:
+        kind: info
+
+    mf44_amtime_2004_to_2049:
+        kind: info
+
+    mf44_amtime_2203_to_24:
+        kind: info
+
+    mf44_amtime_2203_to_125:
+        kind: info
+
+    mf44_amtime_2203_to_511:
+        kind: info
+
+    mf44_amtime_2203_to_2049:
+        kind: info
+
+    mf44_amtime_2290_to_24:
+        kind: info
+
+    mf44_amtime_2290_to_125:
+        kind: info
+
+    mf44_amtime_2290_to_511:
+        kind: info
+
+    mf44_amtime_2290_to_2049:
+        kind: info
+
+    mf44_amtime_2507_to_24:
+        kind: info
+
+    mf44_amtime_2507_to_125:
+        kind: info
+
+    mf44_amtime_2507_to_511:
+        kind: info
+
+    mf44_amtime_2507_to_2049:
+        kind: info
+
+    mf44_amtime_2796_to_24:
+        kind: info
+
+    mf44_amtime_2796_to_125:
+        kind: info
+
+    mf44_amtime_2796_to_511:
+        kind: info
+
+    mf44_amtime_2796_to_2049:
+        kind: info
+
+    mf45_amdist_311_to_24:
+        kind: info
+
+    mf45_amdist_311_to_125:
+        kind: info
+
+    mf45_amdist_311_to_511:
+        kind: info
+
+    mf45_amdist_311_to_2049:
+        kind: info
+
+    mf45_amdist_384_to_24:
+        kind: info
+
+    mf45_amdist_384_to_125:
+        kind: info
+
+    mf45_amdist_384_to_511:
+        kind: info
+
+    mf45_amdist_384_to_2049:
+        kind: info
+
+    mf45_amdist_623_to_24:
+        kind: info
+
+    mf45_amdist_623_to_125:
+        kind: info
+
+    mf45_amdist_623_to_511:
+        kind: info
+
+    mf45_amdist_623_to_2049:
+        kind: info
+
+    mf45_amdist_1636_to_24:
+        kind: info
+
+    mf45_amdist_1636_to_125:
+        kind: info
+
+    mf45_amdist_1636_to_511:
+        kind: info
+
+    mf45_amdist_1636_to_2049:
+        kind: info
+
+    mf45_amdist_2004_to_24:
+        kind: info
+
+    mf45_amdist_2004_to_125:
+        kind: info
+
+    mf45_amdist_2004_to_511:
+        kind: info
+
+    mf45_amdist_2004_to_2049:
+        kind: info
+
+    mf45_amdist_2203_to_24:
+        kind: info
+
+    mf45_amdist_2203_to_125:
+        kind: info
+
+    mf45_amdist_2203_to_511:
+        kind: info
+
+    mf45_amdist_2203_to_2049:
+        kind: info
+
+    mf45_amdist_2290_to_24:
+        kind: info
+
+    mf45_amdist_2290_to_125:
+        kind: info
+
+    mf45_amdist_2290_to_511:
+        kind: info
+
+    mf45_amdist_2290_to_2049:
+        kind: info
+
+    mf45_amdist_2507_to_24:
+        kind: info
+
+    mf45_amdist_2507_to_125:
+        kind: info
+
+    mf45_amdist_2507_to_511:
+        kind: info
+
+    mf45_amdist_2507_to_2049:
+        kind: info
+
+    mf45_amdist_2796_to_24:
+        kind: info
+
+    mf45_amdist_2796_to_125:
+        kind: info
+
+    mf45_amdist_2796_to_511:
+        kind: info
+
+    mf45_amdist_2796_to_2049:
+        kind: info
+
+    mf46_mdtime_311_to_24:
+        kind: info
+
+    mf46_mdtime_311_to_125:
+        kind: info
+
+    mf46_mdtime_311_to_511:
+        kind: info
+
+    mf46_mdtime_311_to_2049:
+        kind: info
+
+    mf46_mdtime_384_to_24:
+        kind: info
+
+    mf46_mdtime_384_to_125:
+        kind: info
+
+    mf46_mdtime_384_to_511:
+        kind: info
+
+    mf46_mdtime_384_to_2049:
+        kind: info
+
+    mf46_mdtime_623_to_24:
+        kind: info
+
+    mf46_mdtime_623_to_125:
+        kind: info
+
+    mf46_mdtime_623_to_511:
+        kind: info
+
+    mf46_mdtime_623_to_2049:
+        kind: info
+
+    mf46_mdtime_1636_to_24:
+        kind: info
+
+    mf46_mdtime_1636_to_125:
+        kind: info
+
+    mf46_mdtime_1636_to_511:
+        kind: info
+
+    mf46_mdtime_1636_to_2049:
+        kind: info
+
+    mf46_mdtime_2004_to_24:
+        kind: info
+
+    mf46_mdtime_2004_to_125:
+        kind: info
+
+    mf46_mdtime_2004_to_511:
+        kind: info
+
+    mf46_mdtime_2004_to_2049:
+        kind: info
+
+    mf46_mdtime_2203_to_24:
+        kind: info
+
+    mf46_mdtime_2203_to_125:
+        kind: info
+
+    mf46_mdtime_2203_to_511:
+        kind: info
+
+    mf46_mdtime_2203_to_2049:
+        kind: info
+
+    mf46_mdtime_2290_to_24:
+        kind: info
+
+    mf46_mdtime_2290_to_125:
+        kind: info
+
+    mf46_mdtime_2290_to_511:
+        kind: info
+
+    mf46_mdtime_2290_to_2049:
+        kind: info
+
+    mf46_mdtime_2507_to_24:
+        kind: info
+
+    mf46_mdtime_2507_to_125:
+        kind: info
+
+    mf46_mdtime_2507_to_511:
+        kind: info
+
+    mf46_mdtime_2507_to_2049:
+        kind: info
+
+    mf46_mdtime_2796_to_24:
+        kind: info
+
+    mf46_mdtime_2796_to_125:
+        kind: info
+
+    mf46_mdtime_2796_to_511:
+        kind: info
+
+    mf46_mdtime_2796_to_2049:
+        kind: info
+
+    mf47_mddist_311_to_24:
+        kind: info
+
+    mf47_mddist_311_to_125:
+        kind: info
+
+    mf47_mddist_311_to_511:
+        kind: info
+
+    mf47_mddist_311_to_2049:
+        kind: info
+
+    mf47_mddist_384_to_24:
+        kind: info
+
+    mf47_mddist_384_to_125:
+        kind: info
+
+    mf47_mddist_384_to_511:
+        kind: info
+
+    mf47_mddist_384_to_2049:
+        kind: info
+
+    mf47_mddist_623_to_24:
+        kind: info
+
+    mf47_mddist_623_to_125:
+        kind: info
+
+    mf47_mddist_623_to_511:
+        kind: info
+
+    mf47_mddist_623_to_2049:
+        kind: info
+
+    mf47_mddist_1636_to_24:
+        kind: info
+
+    mf47_mddist_1636_to_125:
+        kind: info
+
+    mf47_mddist_1636_to_511:
+        kind: info
+
+    mf47_mddist_1636_to_2049:
+        kind: info
+
+    mf47_mddist_2004_to_24:
+        kind: info
+
+    mf47_mddist_2004_to_125:
+        kind: info
+
+    mf47_mddist_2004_to_511:
+        kind: info
+
+    mf47_mddist_2004_to_2049:
+        kind: info
+
+    mf47_mddist_2203_to_24:
+        kind: info
+
+    mf47_mddist_2203_to_125:
+        kind: info
+
+    mf47_mddist_2203_to_511:
+        kind: info
+
+    mf47_mddist_2203_to_2049:
+        kind: info
+
+    mf47_mddist_2290_to_24:
+        kind: info
+
+    mf47_mddist_2290_to_125:
+        kind: info
+
+    mf47_mddist_2290_to_511:
+        kind: info
+
+    mf47_mddist_2290_to_2049:
+        kind: info
+
+    mf47_mddist_2507_to_24:
+        kind: info
+
+    mf47_mddist_2507_to_125:
+        kind: info
+
+    mf47_mddist_2507_to_511:
+        kind: info
+
+    mf47_mddist_2507_to_2049:
+        kind: info
+
+    mf47_mddist_2796_to_24:
+        kind: info
+
+    mf47_mddist_2796_to_125:
+        kind: info
+
+    mf47_mddist_2796_to_511:
+        kind: info
+
+    mf47_mddist_2796_to_2049:
+        kind: info
+
+    ### run_vht_statistics ###
+
+    Chicago_Autos_Expressway_VMT:
+        kind: info
+
+    Chicago_Autos_Arterial_VMT:
+        kind: info
+
+    Chicago_Autos_RampToll_VMT:
+        kind: info
+
+    Chicago_Autos_Centroid_VMT:
+        kind: info
+
+    Chicago_Autos_Total_District_VMT:
+        kind: info
+
+    Chicago_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    Chicago_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    Chicago_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    Chicago_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    Chicago_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    Chicago_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    Chicago_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    Chicago_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    Chicago_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    Chicago_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    Chicago_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    Chicago_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    Chicago_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    Chicago_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    Chicago_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    Chicago_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    Chicago_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    Chicago_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    Chicago_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    Chicago_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    Chicago_Total_VHT_Expressway_VHT:
+        kind: info
+
+    Chicago_Total_VHT_Arterial_VHT:
+        kind: info
+
+    Chicago_Total_VHT_RampToll_VHT:
+        kind: info
+
+    Chicago_Total_VHT_Centroid_VHT:
+        kind: info
+
+    Chicago_Total_VHT_Total_District_VHT:
+        kind: info
+
+    Cook_balance_Autos_Expressway_VMT:
+        kind: info
+
+    Cook_balance_Autos_Arterial_VMT:
+        kind: info
+
+    Cook_balance_Autos_RampToll_VMT:
+        kind: info
+
+    Cook_balance_Autos_Centroid_VMT:
+        kind: info
+
+    Cook_balance_Autos_Total_District_VMT:
+        kind: info
+
+    Cook_balance_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    Cook_balance_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    Cook_balance_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    Cook_balance_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    Cook_balance_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    Cook_balance_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    Cook_balance_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    Cook_balance_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    Cook_balance_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    Cook_balance_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    Cook_balance_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    Cook_balance_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    Cook_balance_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    Cook_balance_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    Cook_balance_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    Cook_balance_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    Cook_balance_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    Cook_balance_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    Cook_balance_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    Cook_balance_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    Cook_balance_Total_VHT_Expressway_VHT:
+        kind: info
+
+    Cook_balance_Total_VHT_Arterial_VHT:
+        kind: info
+
+    Cook_balance_Total_VHT_RampToll_VHT:
+        kind: info
+
+    Cook_balance_Total_VHT_Centroid_VHT:
+        kind: info
+
+    Cook_balance_Total_VHT_Total_District_VHT:
+        kind: info
+
+    DuPage_Autos_Expressway_VMT:
+        kind: info
+
+    DuPage_Autos_Arterial_VMT:
+        kind: info
+
+    DuPage_Autos_RampToll_VMT:
+        kind: info
+
+    DuPage_Autos_Centroid_VMT:
+        kind: info
+
+    DuPage_Autos_Total_District_VMT:
+        kind: info
+
+    DuPage_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    DuPage_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    DuPage_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    DuPage_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    DuPage_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    DuPage_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    DuPage_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    DuPage_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    DuPage_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    DuPage_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    DuPage_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    DuPage_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    DuPage_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    DuPage_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    DuPage_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    DuPage_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    DuPage_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    DuPage_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    DuPage_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    DuPage_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    DuPage_Total_VHT_Expressway_VHT:
+        kind: info
+
+    DuPage_Total_VHT_Arterial_VHT:
+        kind: info
+
+    DuPage_Total_VHT_RampToll_VHT:
+        kind: info
+
+    DuPage_Total_VHT_Centroid_VHT:
+        kind: info
+
+    DuPage_Total_VHT_Total_District_VHT:
+        kind: info
+
+    Kane_Autos_Expressway_VMT:
+        kind: info
+
+    Kane_Autos_Arterial_VMT:
+        kind: info
+
+    Kane_Autos_RampToll_VMT:
+        kind: info
+
+    Kane_Autos_Centroid_VMT:
+        kind: info
+
+    Kane_Autos_Total_District_VMT:
+        kind: info
+
+    Kane_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    Kane_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    Kane_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    Kane_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    Kane_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    Kane_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    Kane_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    Kane_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    Kane_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    Kane_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    Kane_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    Kane_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    Kane_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    Kane_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    Kane_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    Kane_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    Kane_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    Kane_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    Kane_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    Kane_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    Kane_Total_VHT_Expressway_VHT:
+        kind: info
+
+    Kane_Total_VHT_Arterial_VHT:
+        kind: info
+
+    Kane_Total_VHT_RampToll_VHT:
+        kind: info
+
+    Kane_Total_VHT_Centroid_VHT:
+        kind: info
+
+    Kane_Total_VHT_Total_District_VHT:
+        kind: info
+
+    Kendall_Autos_Expressway_VMT:
+        kind: info
+
+    Kendall_Autos_Arterial_VMT:
+        kind: info
+
+    Kendall_Autos_RampToll_VMT:
+        kind: info
+
+    Kendall_Autos_Centroid_VMT:
+        kind: info
+
+    Kendall_Autos_Total_District_VMT:
+        kind: info
+
+    Kendall_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    Kendall_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    Kendall_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    Kendall_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    Kendall_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    Kendall_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    Kendall_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    Kendall_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    Kendall_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    Kendall_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    Kendall_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    Kendall_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    Kendall_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    Kendall_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    Kendall_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    Kendall_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    Kendall_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    Kendall_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    Kendall_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    Kendall_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    Kendall_Total_VHT_Expressway_VHT:
+        kind: info
+
+    Kendall_Total_VHT_Arterial_VHT:
+        kind: info
+
+    Kendall_Total_VHT_RampToll_VHT:
+        kind: info
+
+    Kendall_Total_VHT_Centroid_VHT:
+        kind: info
+
+    Kendall_Total_VHT_Total_District_VHT:
+        kind: info
+
+    Lake_Autos_Expressway_VMT:
+        kind: info
+
+    Lake_Autos_Arterial_VMT:
+        kind: info
+
+    Lake_Autos_RampToll_VMT:
+        kind: info
+
+    Lake_Autos_Centroid_VMT:
+        kind: info
+
+    Lake_Autos_Total_District_VMT:
+        kind: info
+
+    Lake_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    Lake_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    Lake_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    Lake_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    Lake_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    Lake_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    Lake_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    Lake_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    Lake_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    Lake_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    Lake_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    Lake_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    Lake_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    Lake_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    Lake_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    Lake_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    Lake_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    Lake_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    Lake_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    Lake_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    Lake_Total_VHT_Expressway_VHT:
+        kind: info
+
+    Lake_Total_VHT_Arterial_VHT:
+        kind: info
+
+    Lake_Total_VHT_RampToll_VHT:
+        kind: info
+
+    Lake_Total_VHT_Centroid_VHT:
+        kind: info
+
+    Lake_Total_VHT_Total_District_VHT:
+        kind: info
+
+    McHenry_Autos_Expressway_VMT:
+        kind: info
+
+    McHenry_Autos_Arterial_VMT:
+        kind: info
+
+    McHenry_Autos_RampToll_VMT:
+        kind: info
+
+    McHenry_Autos_Centroid_VMT:
+        kind: info
+
+    McHenry_Autos_Total_District_VMT:
+        kind: info
+
+    McHenry_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    McHenry_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    McHenry_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    McHenry_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    McHenry_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    McHenry_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    McHenry_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    McHenry_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    McHenry_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    McHenry_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    McHenry_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    McHenry_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    McHenry_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    McHenry_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    McHenry_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    McHenry_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    McHenry_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    McHenry_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    McHenry_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    McHenry_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    McHenry_Total_VHT_Expressway_VHT:
+        kind: info
+
+    McHenry_Total_VHT_Arterial_VHT:
+        kind: info
+
+    McHenry_Total_VHT_RampToll_VHT:
+        kind: info
+
+    McHenry_Total_VHT_Centroid_VHT:
+        kind: info
+
+    McHenry_Total_VHT_Total_District_VHT:
+        kind: info
+
+    Will_Autos_Expressway_VMT:
+        kind: info
+
+    Will_Autos_Arterial_VMT:
+        kind: info
+
+    Will_Autos_RampToll_VMT:
+        kind: info
+
+    Will_Autos_Centroid_VMT:
+        kind: info
+
+    Will_Autos_Total_District_VMT:
+        kind: info
+
+    Will_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    Will_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    Will_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    Will_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    Will_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    Will_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    Will_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    Will_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    Will_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    Will_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    Will_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    Will_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    Will_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    Will_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    Will_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    Will_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    Will_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    Will_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    Will_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    Will_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    Will_Total_VHT_Expressway_VHT:
+        kind: info
+
+    Will_Total_VHT_Arterial_VHT:
+        kind: info
+
+    Will_Total_VHT_RampToll_VHT:
+        kind: info
+
+    Will_Total_VHT_Centroid_VHT:
+        kind: info
+
+    Will_Total_VHT_Total_District_VHT:
+        kind: info
+
+    Illinois_balance_Autos_Expressway_VMT:
+        kind: info
+
+    Illinois_balance_Autos_Arterial_VMT:
+        kind: info
+
+    Illinois_balance_Autos_RampToll_VMT:
+        kind: info
+
+    Illinois_balance_Autos_Centroid_VMT:
+        kind: info
+
+    Illinois_balance_Autos_Total_District_VMT:
+        kind: info
+
+    Illinois_balance_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    Illinois_balance_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    Illinois_balance_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    Illinois_balance_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    Illinois_balance_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    Illinois_balance_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    Illinois_balance_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    Illinois_balance_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    Illinois_balance_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    Illinois_balance_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    Illinois_balance_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    Illinois_balance_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    Illinois_balance_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    Illinois_balance_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    Illinois_balance_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    Illinois_balance_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    Illinois_balance_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    Illinois_balance_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    Illinois_balance_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    Illinois_balance_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    Illinois_balance_Total_VHT_Expressway_VHT:
+        kind: info
+
+    Illinois_balance_Total_VHT_Arterial_VHT:
+        kind: info
+
+    Illinois_balance_Total_VHT_RampToll_VHT:
+        kind: info
+
+    Illinois_balance_Total_VHT_Centroid_VHT:
+        kind: info
+
+    Illinois_balance_Total_VHT_Total_District_VHT:
+        kind: info
+
+    Indiana_Autos_Expressway_VMT:
+        kind: info
+
+    Indiana_Autos_Arterial_VMT:
+        kind: info
+
+    Indiana_Autos_RampToll_VMT:
+        kind: info
+
+    Indiana_Autos_Centroid_VMT:
+        kind: info
+
+    Indiana_Autos_Total_District_VMT:
+        kind: info
+
+    Indiana_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    Indiana_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    Indiana_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    Indiana_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    Indiana_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    Indiana_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    Indiana_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    Indiana_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    Indiana_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    Indiana_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    Indiana_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    Indiana_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    Indiana_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    Indiana_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    Indiana_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    Indiana_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    Indiana_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    Indiana_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    Indiana_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    Indiana_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    Indiana_Total_VHT_Expressway_VHT:
+        kind: info
+
+    Indiana_Total_VHT_Arterial_VHT:
+        kind: info
+
+    Indiana_Total_VHT_RampToll_VHT:
+        kind: info
+
+    Indiana_Total_VHT_Centroid_VHT:
+        kind: info
+
+    Indiana_Total_VHT_Total_District_VHT:
+        kind: info
+
+    Wisconsin_Autos_Expressway_VMT:
+        kind: info
+
+    Wisconsin_Autos_Arterial_VMT:
+        kind: info
+
+    Wisconsin_Autos_RampToll_VMT:
+        kind: info
+
+    Wisconsin_Autos_Centroid_VMT:
+        kind: info
+
+    Wisconsin_Autos_Total_District_VMT:
+        kind: info
+
+    Wisconsin_B-plate_Trucks_Expressway_VMT:
+        kind: info
+
+    Wisconsin_B-plate_Trucks_Arterial_VMT:
+        kind: info
+
+    Wisconsin_B-plate_Trucks_RampToll_VMT:
+        kind: info
+
+    Wisconsin_B-plate_Trucks_Centroid_VMT:
+        kind: info
+
+    Wisconsin_B-plate_Trucks_Total_District_VMT:
+        kind: info
+
+    Wisconsin_Light_Trucks_Expressway_VMT:
+        kind: info
+
+    Wisconsin_Light_Trucks_Arterial_VMT:
+        kind: info
+
+    Wisconsin_Light_Trucks_RampToll_VMT:
+        kind: info
+
+    Wisconsin_Light_Trucks_Centroid_VMT:
+        kind: info
+
+    Wisconsin_Light_Trucks_Total_District_VMT:
+        kind: info
+
+    Wisconsin_Medium_Trucks_Expressway_VMT:
+        kind: info
+
+    Wisconsin_Medium_Trucks_Arterial_VMT:
+        kind: info
+
+    Wisconsin_Medium_Trucks_RampToll_VMT:
+        kind: info
+
+    Wisconsin_Medium_Trucks_Centroid_VMT:
+        kind: info
+
+    Wisconsin_Medium_Trucks_Total_District_VMT:
+        kind: info
+
+    Wisconsin_Heavy_Trucks_Expressway_VMT:
+        kind: info
+
+    Wisconsin_Heavy_Trucks_Arterial_VMT:
+        kind: info
+
+    Wisconsin_Heavy_Trucks_RampToll_VMT:
+        kind: info
+
+    Wisconsin_Heavy_Trucks_Centroid_VMT:
+        kind: info
+
+    Wisconsin_Heavy_Trucks_Total_District_VMT:
+        kind: info
+
+    Wisconsin_Total_VHT_Expressway_VHT:
+        kind: info
+
+    Wisconsin_Total_VHT_Arterial_VHT:
+        kind: info
+
+    Wisconsin_Total_VHT_RampToll_VHT:
+        kind: info
+
+    Wisconsin_Total_VHT_Centroid_VHT:
+        kind: info
+
+    Wisconsin_Total_VHT_Total_District_VHT:
+        kind: info
+
+...

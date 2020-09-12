@@ -1,0 +1,10 @@
+
+model_path: ../EMAT-WORKING-c20q1_700/c20q1_700_20191219_Clean
+model_archive: ../EMAT-ARCHIVE-c20q1_700
+rel_output_path: .
+
+model_path_land_use_base: .
+model_path_land_use_alt1: ../c20q1_700_20191219_Clean_AltLandUse
+
+# The base directory for the model is \\chicws02\c$\_projects\CMAP\c20q1_700_20191219\c20q1_700_20191219
+#  \\chicws02\c$\_projects\CMAP\c20q1_700_20191219\c20q1_700_20191219\Database\report

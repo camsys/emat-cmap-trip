@@ -1,0 +1,7 @@
+  200  225   25   95  CTA BUS, RAPID TRANSIT, TRANSFERS AND CBD LINKUP FARE
+   95         0       COST PARAMETERS FOR SUBURBAN FEEDER BUS
+  175        25       COST PARAMETERS FOR SUBURBAN BUS
+ __EMAT_PROVIDES__auto__opt__cost__p1__ __EMAT_PROVIDES__auto__opt__cost__p2__ __EMAT_PROVIDES__auto__opt__cost__p3__ __EMAT_PROVIDES__auto__opt__cost__p4__ __EMAT_PROVIDES__auto__opt__cost__p5__ __EMAT_PROVIDES__auto__opt__cost__p6__ __EMAT_PROVIDES__auto__opt__cost__p7__ __EMAT_PROVIDES__auto__opt__cost__p8__  AUTO OPERATING COST
+ __EMAT_PROVIDES__auto__opt__cost__p9__ __EMAT_PROVIDES__auto__opt__cost__p10__ __EMAT_PROVIDES__auto__opt__cost__p11__ __EMAT_PROVIDES__auto__opt__cost__p12__ __EMAT_PROVIDES__auto__opt__cost__p13__ __EMAT_PROVIDES__auto__opt__cost__p14__ __EMAT_PROVIDES__auto__opt__cost__p15__ __EMAT_PROVIDES__auto__opt__cost__p16__    0-75MPH BY 5MPH INCREMENTS
+ 2000 1700 1500 1500   AVG COST BY ZONE TYPE FOR AUTO (CENTS/MILE)
+
