@@ -1488,6 +1488,8 @@ class CMAP_EMAT_Model(FilesCoreModel):
 		os.makedirs(os.path.join(model_results_path, 'Database'), exist_ok=True)
 		os.makedirs(os.path.join(model_results_path, 'Database', 'report'), exist_ok=True)
 
+		warnlog = []
+
 		#### SINGLE FILE ####
 
 		def _singlefile(*pathargs):
@@ -1496,6 +1498,7 @@ class CMAP_EMAT_Model(FilesCoreModel):
 				shutil.copy2(src, os.path.join(model_results_path, *pathargs))
 			else:
 				warnings.warn(f"ARCHIVE WARNING: File '{src}' not found")
+				warnlog.append(f"ARCHIVE WARNING: File '{src}' not found")
 
 		# Copy emat info
 		_singlefile("_emat_parameters_.yml")
@@ -1528,6 +1531,12 @@ class CMAP_EMAT_Model(FilesCoreModel):
 		# Copy interchange_times.txt, a single file inside the Database\Report directory
 		_singlefile('Database', 'report', "interchange_times.txt")
 
+		# Copy blog.txt, a single file inside the Database directory
+		_singlefile('Database', "blog.txt")
+
+		# Copy blog.txt, a single file inside the Database directory
+		_singlefile('Database', "model_run_timestamp.txt")
+
 		#### ENTIRE SUBDIRECTORY ####
 		# Copy data, a directory inside the Database directory
 		copy_tree(
@@ -1547,12 +1556,26 @@ class CMAP_EMAT_Model(FilesCoreModel):
 				shutil.copy2(src, dest)
 			else:
 				warnings.warn(f"ARCHIVE WARNING: File '{src}' not found")
+				warnlog.append(f"ARCHIVE WARNING: File '{src}' not found")
 
 		# The general criteria for the archive is to take everything that is
 		# a last-iteration model output, but abandon things that are unmodified inputs
 		# and intermediate or temporary files that EMME created along the way.
 		# When in doubt, err on the side of archiving it.
 
+		if warnlog:
+			with open(os.path.join(model_results_path, 'emat_archive_warnings.txt'), 'at') as wf:
+				for i in warnlog:
+					wf.write(str(i))
+					wf.write("\n")
+
+		# The file size of the models is epic, over 11GB per model copy.  Left unchecked
+		# this fills up the drive super-fast.  So, we need to clean up the model directory
+		# here to avoid crashes from out-of-memory errors.
+		try:
+			shutil.rmtree(self.resolved_model_path)
+		except:
+			_logger.exception("EXCEPTION IN MODEL DELETE")
 
 def _tiered_file_parse(filename, sep):
 	"""
