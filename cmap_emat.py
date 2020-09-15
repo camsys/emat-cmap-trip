@@ -1569,13 +1569,13 @@ class CMAP_EMAT_Model(FilesCoreModel):
 					wf.write(str(i))
 					wf.write("\n")
 
-		# The file size of the models is epic, over 11GB per model copy.  Left unchecked
-		# this fills up the drive super-fast.  So, we need to clean up the model directory
-		# here to avoid crashes from out-of-memory errors.
-		try:
-			shutil.rmtree(self.resolved_model_path)
-		except:
-			_logger.exception("EXCEPTION IN MODEL DELETE")
+		# # The file size of the models is epic, over 11GB per model copy.  Left unchecked
+		# # this fills up the drive super-fast.  So, we need to clean up the model directory
+		# # here to avoid crashes from out-of-memory errors.
+		# try:
+		# 	shutil.rmtree(self.resolved_model_path)
+		# except:
+		# 	_logger.exception("EXCEPTION IN MODEL DELETE")
 
 def _tiered_file_parse(filename, sep):
 	"""
