@@ -43,14 +43,17 @@ this_directory = os.path.dirname(__file__)
 ## Check that EMME is installed and available.  Add to path if needed
 import subprocess, os
 version_check = subprocess.run(["emme", "--version"], shell=True, capture_output=True)
-if "Emme 4.3.7 64-bit" not in version_check.stdout.decode():
+version_check_emme = re.compile("Emme 4\.3\.[0-9] 64-bit")
+if not version_check_emme.match(version_check.stdout.decode()):
 	local_env = os.environ
-	local_env["PATH"] += r";C:\Program Files\INRO\Emme\Emme 4\Emme-4.3.7\programs"
-	local_env["PATH"] += r";C:\Program Files\INRO\Emme\Emme 4\Emme-4.3.7/Python27"
-	local_env["PATH"] += r";C:\Program Files\INRO\Emme\Emme 4\Emme-4.3.7/Python27\Scripts"
+	for patch_num in [9,8,7,6]:
+		if os.path.exists(f"C:/Program Files/INRO/Emme/Emme 4/Emme-4.3.{patch_num}"):
+			local_env["PATH"] += fr";C:\Program Files\INRO\Emme\Emme 4\Emme-4.3.{patch_num}\programs"
+			local_env["PATH"] += fr";C:\Program Files\INRO\Emme\Emme 4\Emme-4.3.{patch_num}/Python27"
+			local_env["PATH"] += fr";C:\Program Files\INRO\Emme\Emme 4\Emme-4.3.{patch_num}/Python27\Scripts"
 	version_check = subprocess.run(["emme", "--version"], shell=True, capture_output=True)
-	if "Emme 4.3.7 64-bit" not in version_check.stdout.decode():
-		warnings.warn("cannot find Emme 4.3.7 64-bit")
+	if not version_check_emme.match(version_check.stdout.decode()):
+		warnings.warn("cannot find Emme 4.3.* 64-bit")
 if version_check.stdout:
 	_logger.info(version_check.stdout.decode())
 
