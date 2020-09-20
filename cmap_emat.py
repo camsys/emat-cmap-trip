@@ -1404,7 +1404,6 @@ class CMAP_EMAT_Model(FilesCoreModel):
 
 				babysitter_src = f"""
 				while ($true) {{
-					gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include blog.txt | ? {{ $_.length -gt 10kb }} | "KILLED BECAUSE BLOG TOO LARGE" | Out-File killed.txt;
 					gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include blog.txt | ? {{ $_.length -gt 10kb }} | TASKKILL /F /PID {process.pid} /T > killed.txt;
 					sleep 15;
 				}}
