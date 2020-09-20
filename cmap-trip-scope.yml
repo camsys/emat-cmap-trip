@@ -102,7 +102,7 @@ inputs:
         shortname: Expressway Tolling
         ptype: policy lever
         dtype: float
-        default: 0.1
+        default: 0.0
         min: 0.0
         max: 0.4
         dist: uniform
