@@ -1362,28 +1362,30 @@ class CMAP_EMAT_Model(FilesCoreModel):
 
 		import subprocess
 
-		babysitter1_src = f"""
-		while ($true) {{
-			gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include errors | ? {{ $_.length -gt 50mb }} | Clear-Content; 
-			sleep 15;
-		}}
-		"""
-		babysitter2_src = f"""
-		while ($true) {{
-			gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include blog.txt | ? {{ $_.length -gt 50mb }} | Clear-Content; 
-			sleep 15;
-		}}
-		"""
-		sitter1_path = join_norm(self.resolved_model_path, "Database", 'sitter1.ps')
-		sitter2_path = join_norm(self.resolved_model_path, "Database", 'sitter2.ps')
-		with open(sitter1_path, 'wt') as bs1:
-			bs1.write(babysitter1_src)
-		with open(sitter2_path, 'wt') as bs2:
-			bs2.write(babysitter2_src)
-
-		babysitter1 = subprocess.Popen(['Powershell.exe','-executionpolicy','remotesigned','-File',sitter1_path])
-		babysitter2 = subprocess.Popen(['Powershell.exe','-executionpolicy','remotesigned','-File',sitter2_path])
-
+		# babysitter1_src = f"""
+		# while ($true) {{
+		# 	gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include errors | ? {{ $_.length -gt 50mb }} | Clear-Content;
+		# 	sleep 15;
+		# }}
+		# """
+		# babysitter2_src = f"""
+		# while ($true) {{
+		# 	gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include blog.txt | ? {{ $_.length -gt 50mb }} | Clear-Content;
+		# 	sleep 15;
+		# }}
+		# """
+		# sitter1_path = join_norm(self.resolved_model_path, "Database", 'sitter1.ps1')
+		# sitter2_path = join_norm(self.resolved_model_path, "Database", 'sitter2.ps1')
+		# with open(sitter1_path, 'wt') as bs1:
+		# 	bs1.write(babysitter1_src)
+		# with open(sitter2_path, 'wt') as bs2:
+		# 	bs2.write(babysitter2_src)
+		#
+		# babysitter1 = subprocess.Popen(['Powershell.exe','-executionpolicy','remotesigned','-File',sitter1_path])
+		# # Powershell.exe -executionpolicy remotesigned -File sitter1.ps
+		# babysitter2 = subprocess.Popen(['Powershell.exe','-executionpolicy','remotesigned','-File',sitter2_path])
+		#
+		babysitter = None
 		try:
 			# The subprocess.run command runs a command line tool. The
 			# name of the command line tool, plus all the command line arguments
@@ -1392,12 +1394,36 @@ class CMAP_EMAT_Model(FilesCoreModel):
 			# command line tool is launched.  Setting `capture_output` to True
 			# will capture both stdout and stderr from the command line tool, and
 			# make these available in the result to facilitate debugging.
-			self.last_run_result = subprocess.run(
-				cmd,
-				cwd=join_norm(self.resolved_model_path, "Database"),
-				shell=True,
-				capture_output=True,
-			)
+			with subprocess.Popen(
+					cmd,
+					cwd=join_norm(self.resolved_model_path, "Database"),
+					shell=True,
+					stdout=subprocess.PIPE,
+					stderr=subprocess.PIPE,
+			) as process:
+
+				babysitter_src = f"""
+				while ($true) {{
+					gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include blog.txt | ? {{ $_.length -gt 10kb }} | "KILLED BECAUSE BLOG TOO LARGE" | Out-File killed.txt;
+					gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include blog.txt | ? {{ $_.length -gt 10kb }} | TASKKILL /F /PID {process.pid} /T > killed.txt;
+					sleep 15;
+				}}
+				"""
+				babysitter_path = join_norm(self.resolved_model_path, "Database", 'babysitter.ps1')
+				with open(babysitter_path, 'wt') as bs:
+					bs.write(babysitter_src)
+				babysitter = subprocess.Popen(
+					['Powershell.exe', '-executionpolicy', 'remotesigned', '-File', babysitter_path]
+				)
+
+				try:
+					stdout, stderr = process.communicate()
+				except:  # Including KeyboardInterrupt, communicate handled that.
+					process.kill()
+					# We don't call process.wait() as .__exit__ does that for us.
+					raise
+				retcode = process.poll()
+			self.last_run_result = subprocess.CompletedProcess(process.args, retcode, stdout, stderr)
 
 			# To kill a subprocess and all children of that subprocess...
 			#   from subprocess import Popen
@@ -1425,8 +1451,8 @@ class CMAP_EMAT_Model(FilesCoreModel):
 				)
 
 		finally:
-			babysitter1.terminate()
-			babysitter2.terminate()
+			if babysitter is not None:
+				babysitter.terminate()
 
 		_logger.info("CMAP EMAT Model RUN complete")
 

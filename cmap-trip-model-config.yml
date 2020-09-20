@@ -6,5 +6,7 @@ rel_output_path: .
 model_path_land_use_base: .
 model_path_land_use_alt1: ../c20q1_700_20191219_Clean_AltLandUse
 
+killed_indicator: Database/killed.txt
+
 # The base directory for the model is \\chicws02\c$\_projects\CMAP\c20q1_700_20191219\c20q1_700_20191219
 #  \\chicws02\c$\_projects\CMAP\c20q1_700_20191219\c20q1_700_20191219\Database\report
