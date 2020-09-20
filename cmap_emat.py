@@ -177,6 +177,9 @@ class CMAP_EMAT_Model(FilesCoreModel):
 			MappingParser(
 				os.path.join('Database', 'report', "run_vmt_statistics.rpt"),
 				{
+					# 'Full_Region_VMT': sum(key['Chicago.Expressway VMT'             ]),
+					#
+					#
 					'Chicago_Expressway_VMT':              key['Chicago.Expressway VMT'             ],
 					'Chicago_Arterial_VMT':                key['Chicago.Arterial VMT'               ],
 					'Chicago_RampToll_VMT':                key['Chicago.Ramp/Toll VMT'              ],
@@ -1169,6 +1172,13 @@ class CMAP_EMAT_Model(FilesCoreModel):
 		with open(macro_filename, 'wt') as f:
 			f.write(y)
 
+	def peak_tolled_auto_operating_cost(self, params):
+		fuel_cost_within_range = ((params['fuel_cost'] - 2.5) / (6.0-2.5))
+		fuel_economy_min = 0.6
+		fuel_economy_max = 0.8
+		fuel_economy = fuel_economy_min + (fuel_economy_max-fuel_economy_min)*(1.0-fuel_cost_within_range)
+		peak = int(np.round(10000 * (params['fuel_cost']/((1/0.0309) * (1 + fuel_economy)) + 0.0533 + params['vmt_charge'])))
+		return peak
 
 	def _manipulate_cost_input_files (self, params):
 		# There are 8 values in this file that need to be edited.
@@ -1350,39 +1360,73 @@ class CMAP_EMAT_Model(FilesCoreModel):
 		_logger.debug(f"cmd = {cmd}")
 		_logger.debug(f"exists = {os.path.exists(join_norm(self.resolved_model_path, 'Database', cmd))}")
 
-		# The subprocess.run command runs a command line tool. The
-		# name of the command line tool, plus all the command line arguments
-		# for the tool, are given as a list of strings, not one string.
-		# The `cwd` argument sets the current working directory from which the
-		# command line tool is launched.  Setting `capture_output` to True
-		# will capture both stdout and stderr from the command line tool, and
-		# make these available in the result to facilitate debugging.
 		import subprocess
-		self.last_run_result = subprocess.run(
-			cmd,
-			cwd=join_norm(self.resolved_model_path, "Database"),
-			shell=True,
-			capture_output=True,
-		)
-		if self.last_run_result.returncode:
-			with open("_stdout.log", "a") as f:
-				f.write("=======================\n")
-				stdout = self.last_run_result.stdout
-				if isinstance(stdout, bytes):
-					stdout = stdout.decode()
-				f.write(stdout)
-			with open("_stderr.log", "a") as f:
-				f.write("=======================\n")
-				stderr = self.last_run_result.stderr
-				if isinstance(stderr, bytes):
-					stderr = stderr.decode()
-				f.write(stderr)
-			raise subprocess.CalledProcessError(
-				self.last_run_result.returncode,
-				self.last_run_result.args,
-				self.last_run_result.stdout,
-				self.last_run_result.stderr,
+
+		babysitter1_src = f"""
+		while ($true) {{
+			gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include errors | ? {{ $_.length -gt 50mb }} | Clear-Content; 
+			sleep 15;
+		}}
+		"""
+		babysitter2_src = f"""
+		while ($true) {{
+			gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include blog.txt | ? {{ $_.length -gt 50mb }} | Clear-Content; 
+			sleep 15;
+		}}
+		"""
+		sitter1_path = join_norm(self.resolved_model_path, "Database", 'sitter1.ps')
+		sitter2_path = join_norm(self.resolved_model_path, "Database", 'sitter2.ps')
+		with open(sitter1_path, 'wt') as bs1:
+			bs1.write(babysitter1_src)
+		with open(sitter2_path, 'wt') as bs2:
+			bs2.write(babysitter2_src)
+
+		babysitter1 = subprocess.Popen(['Powershell.exe','-executionpolicy','remotesigned','-File',sitter1_path])
+		babysitter2 = subprocess.Popen(['Powershell.exe','-executionpolicy','remotesigned','-File',sitter2_path])
+
+		try:
+			# The subprocess.run command runs a command line tool. The
+			# name of the command line tool, plus all the command line arguments
+			# for the tool, are given as a list of strings, not one string.
+			# The `cwd` argument sets the current working directory from which the
+			# command line tool is launched.  Setting `capture_output` to True
+			# will capture both stdout and stderr from the command line tool, and
+			# make these available in the result to facilitate debugging.
+			self.last_run_result = subprocess.run(
+				cmd,
+				cwd=join_norm(self.resolved_model_path, "Database"),
+				shell=True,
+				capture_output=True,
 			)
+
+			# To kill a subprocess and all children of that subprocess...
+			#   from subprocess import Popen
+			#   process = Popen(command, shell=True)
+			#   Popen("TASKKILL /F /PID {pid} /T".format(pid=process.pid))
+
+			if self.last_run_result.returncode:
+				with open("_stdout.log", "a") as f:
+					f.write("=======================\n")
+					stdout = self.last_run_result.stdout
+					if isinstance(stdout, bytes):
+						stdout = stdout.decode()
+					f.write(stdout)
+				with open("_stderr.log", "a") as f:
+					f.write("=======================\n")
+					stderr = self.last_run_result.stderr
+					if isinstance(stderr, bytes):
+						stderr = stderr.decode()
+					f.write(stderr)
+				raise subprocess.CalledProcessError(
+					self.last_run_result.returncode,
+					self.last_run_result.args,
+					self.last_run_result.stdout,
+					self.last_run_result.stderr,
+				)
+
+		finally:
+			babysitter1.terminate()
+			babysitter2.terminate()
 
 		_logger.info("CMAP EMAT Model RUN complete")
 
