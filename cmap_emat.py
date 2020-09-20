@@ -1402,9 +1402,12 @@ class CMAP_EMAT_Model(FilesCoreModel):
 					stderr=subprocess.PIPE,
 			) as process:
 
+				kp = join_norm(self.resolved_model_path, "Database", "killed.txt")
+				dp = join_norm(self.resolved_model_path, "Database")
+				pid = process.pid
 				babysitter_src = f"""
 				while ($true) {{
-					gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include errors | ? {{ $_.length -gt 500mb }} | TASKKILL /F /PID {process.pid} /T > killed.txt;
+					gci "{dp}" -recurse -Include errors | ? {{ $_.length -gt 500mb }} | TASKKILL /F /PID {pid} /T > "{kp}";
 					sleep 15;
 				}}
 				"""
