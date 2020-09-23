@@ -1070,6 +1070,7 @@ class CMAP_EMAT_Model(FilesCoreModel):
 						'experiment_id':experiment_id,
 						'uid':self.uid,
 					}, fstream)
+				db.log(f"experiment_id {experiment_id} uid {self.uid}")
 		except:
 			pass
 
@@ -1362,29 +1363,6 @@ class CMAP_EMAT_Model(FilesCoreModel):
 
 		import subprocess
 
-		# babysitter1_src = f"""
-		# while ($true) {{
-		# 	gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include errors | ? {{ $_.length -gt 50mb }} | Clear-Content;
-		# 	sleep 15;
-		# }}
-		# """
-		# babysitter2_src = f"""
-		# while ($true) {{
-		# 	gci {join_norm(self.resolved_model_path, "Database")} -recurse -Include blog.txt | ? {{ $_.length -gt 50mb }} | Clear-Content;
-		# 	sleep 15;
-		# }}
-		# """
-		# sitter1_path = join_norm(self.resolved_model_path, "Database", 'sitter1.ps1')
-		# sitter2_path = join_norm(self.resolved_model_path, "Database", 'sitter2.ps1')
-		# with open(sitter1_path, 'wt') as bs1:
-		# 	bs1.write(babysitter1_src)
-		# with open(sitter2_path, 'wt') as bs2:
-		# 	bs2.write(babysitter2_src)
-		#
-		# babysitter1 = subprocess.Popen(['Powershell.exe','-executionpolicy','remotesigned','-File',sitter1_path])
-		# # Powershell.exe -executionpolicy remotesigned -File sitter1.ps
-		# babysitter2 = subprocess.Popen(['Powershell.exe','-executionpolicy','remotesigned','-File',sitter2_path])
-		#
 		babysitter = None
 		try:
 			# The subprocess.run command runs a command line tool. The
