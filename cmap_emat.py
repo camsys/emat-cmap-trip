@@ -21,6 +21,7 @@ else:
 from distutils.dir_util import copy_tree
 
 import warnings
+import emat
 from emat import Scope
 from emat import SQLiteDB
 from emat.database.database import Database
@@ -119,7 +120,14 @@ class ReplacementOfString:
 
 class CMAP_EMAT_Model(FilesCoreModel):
 
-	def __init__(self, db=None, unique_id=None, ephemeral=False, db_filename="cmap-emat-database.sqlitedb"):
+	def __init__(self, db=None, unique_id=None, ephemeral=False, db_filename=None):
+
+		emat_version = [int(i) for i in emat.__version__.split('.')]
+		if db_filename is None:
+			if emat_version[0]==0 and emat_version[1]<=3:
+				db_filename = "cmap-emat-database.sqlitedb"
+			else:
+				db_filename = "cmap-emat-database-v04.sqlitedb"
 
 		_logger.info("CMAP EMAT Model INIT...")
 
