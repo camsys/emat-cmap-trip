@@ -1393,7 +1393,7 @@ class CMAP_EMAT_Model(FilesCoreModel):
 				pid = process.pid
 				babysitter_src = f"""
 				while ($true) {{
-					if (gci "{dp}" -recurse -Include errors | ? {{ $_.length -gt 500mb }}) {{
+					if (gci "{dp}" -recurse -Include errors | ? {{ $_.length -gt 50mb }}) {{
 						TASKKILL /F /PID {pid} /T;
 						gci "{dp}" -recurse -Include errors > "{kp}";
 					}}
