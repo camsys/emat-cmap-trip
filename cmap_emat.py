@@ -1078,7 +1078,7 @@ class CMAP_EMAT_Model(FilesCoreModel):
 						'experiment_id':experiment_id,
 						'uid':self.uid,
 					}, fstream)
-				db.log(f"experiment_id {experiment_id} uid {self.uid}")
+				db.log(f"SETUP experiment_id {experiment_id} uid {self.uid}")
 		except:
 			pass
 
