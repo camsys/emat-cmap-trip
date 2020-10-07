@@ -1030,11 +1030,7 @@ class CMAP_EMAT_Model(FilesCoreModel):
 		"""
 		_logger.info("CMAP EMAT Model SETUP...")
 
-		# Use provided unique ID or create one.
-		if self.unique_id is None:
-			self.uid = str(uuid())
-		else:
-			self.uid = f"{self.unique_id}-{str(uuid())}"
+		super().setup(params)
 
 		if self.ephemeral:
 			_logger.debug("using an ephemeral copy of model files")
@@ -1044,7 +1040,7 @@ class CMAP_EMAT_Model(FilesCoreModel):
 		else:
 			_logger.debug("using a stable copy of model files")
 			# Copy the model to a working directory next to the original
-			copy_name = f"{os.path.basename(self.source_model_path.replace('_Clean',''))}-{self.uid}"
+			copy_name = f"{os.path.basename(self.source_model_path.replace('_Clean',''))}-{self.run_id}"
 			self.model_copy_path = os.path.normpath(
 				os.path.join(self.source_model_path, '..', copy_name)
 			)
@@ -1076,9 +1072,9 @@ class CMAP_EMAT_Model(FilesCoreModel):
 				with open(join_norm(self.model_copy_path,"_emat_experiment_id_.yml"), 'w') as fstream:
 					serializer.dump({
 						'experiment_id':experiment_id,
-						'uid':self.uid,
+						'run_id':self.run_id,
 					}, fstream)
-				db.log(f"SETUP experiment_id {experiment_id} uid {self.uid}")
+				db.log(f"SETUP experiment_id {experiment_id} run_id {self.run_id}")
 		except:
 			pass
 
