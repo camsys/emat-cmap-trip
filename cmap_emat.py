@@ -122,7 +122,7 @@ class CMAP_EMAT_Model(FilesCoreModel):
 
 	def __init__(self, db=None, unique_id=None, ephemeral=False, db_filename=None):
 
-		emat_version = [int(i) for i in emat.__version__.split('.')]
+		emat_version = [int(i.replace('a','')) for i in emat.__version__.split('.')]
 		if db_filename is None:
 			if emat_version[0]==0 and emat_version[1]<=3:
 				db_filename = "cmap-emat-database.sqlitedb"
