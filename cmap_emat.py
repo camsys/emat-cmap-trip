@@ -1388,7 +1388,7 @@ class CMAP_EMAT_Model(FilesCoreModel):
 				dp = join_norm(self.resolved_model_path, "Database")
 				pid = process.pid
 				babysitter_src = f"""
-				while ($true) {{
+				while (Test-Path "{dp}") {{
 					if (gci "{dp}" -recurse -Include errors | ? {{ $_.length -gt 50mb }}) {{
 						TASKKILL /F /PID {pid} /T;
 						gci "{dp}" -recurse -Include errors > "{kp}";
