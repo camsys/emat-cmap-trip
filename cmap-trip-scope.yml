@@ -2308,4 +2308,58 @@ outputs:
     Wisconsin_Total_VHT_Total_District_VHT:
         kind: info
 
+    ####### Formulas
+
+    Regionwide_VMT:
+        kind: info
+        formula: >-
+            Chicago_Total_District_VMT
+            + Cook_balance_Total_District_VMT
+            + DuPage_Total_District_VMT
+            + Kane_Total_District_VMT
+            + Kendall_Total_District_VMT
+            + Lake_Total_District_VMT
+            + McHenry_Total_District_VMT
+            + Will_Total_District_VMT
+            + Illinois_balance_Total_District_VMT
+            + Indiana_Total_District_VMT
+            + Wisconsin_Total_District_VMT
+
+
+    Regionwide_Expressway_VMT:
+        kind: info
+        formula: >-
+            Chicago_Expressway_VMT
+            + Cook_balance_Expressway_VMT
+            + DuPage_Expressway_VMT
+            + Kane_Expressway_VMT
+            + Kendall_Expressway_VMT
+            + Lake_Expressway_VMT
+            + McHenry_Expressway_VMT
+            + Will_Expressway_VMT
+            + Illinois_balance_Expressway_VMT
+            + Indiana_Expressway_VMT
+            + Wisconsin_Expressway_VMT
+
+    Regionwide_Arterial_VMT:
+        kind: info
+        formula: >-
+            Chicago_Arterial_VMT
+            + Cook_balance_Arterial_VMT
+            + DuPage_Arterial_VMT
+            + Kane_Arterial_VMT
+            + Kendall_Arterial_VMT
+            + Lake_Arterial_VMT
+            + McHenry_Arterial_VMT
+            + Will_Arterial_VMT
+            + Illinois_balance_Arterial_VMT
+            + Indiana_Arterial_VMT
+            + Wisconsin_Arterial_VMT
+
+    Trip_Duration_Ratio_EJ_to_Global_HW:
+        kind: info
+        formula: >-
+            EJ_Average_Trip_Time_HWej_Aut_Avg_Min
+            / ENTIRE_NETWORK_Trip_Duration_HW_Trip_Average_Minutes
+
 ...
