@@ -25,7 +25,7 @@ from emat.util.loggers import get_module_logger
 
 _logger = get_module_logger(__name__)
 
-emat.require_version("0.5.0")
+emat.require_version("0.5.0a5")
 
 # The demo model code is located in the same
 # directory as this script file.  We can recover
