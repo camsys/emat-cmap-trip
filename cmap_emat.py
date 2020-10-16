@@ -9,14 +9,7 @@ import numpy as np
 import re
 import subprocess
 import warnings
-
-try:
-	import shortuuid
-except ImportError:
-	from uuid import uuid4 as uuid
-else:
-	shortuuid.set_alphabet(shortuuid.get_alphabet().lower())
-	uuid = shortuuid.uuid
+from uuid import uuid4 as uuid
 
 from distutils.dir_util import copy_tree
 
@@ -31,6 +24,8 @@ from emat.util.show_dir import show_dir, show_file_contents
 from emat.util.loggers import get_module_logger
 
 _logger = get_module_logger(__name__)
+
+emat.require_version("0.5.0")
 
 # The demo model code is located in the same
 # directory as this script file.  We can recover
@@ -117,6 +112,29 @@ class ReplacementOfString:
 		if self.logger is not None:
 			self.logger.info(f"For '{self.varname}': {n} substitutions made")
 		return s
+
+
+import sys
+import hashlib
+
+# BUF_SIZE is totally arbitrary, change for your app!
+BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
+
+def filehash(filename, checkvalue=None):
+	"Compute a hash for a file"
+	sha1 = hashlib.sha1()
+	with open(filename, 'rb') as f:
+		while True:
+			data = f.read(BUF_SIZE)
+			if not data:
+				break
+			sha1.update(data)
+	digest = sha1.hexdigest()
+	if checkvalue is not None:
+		if checkvalue != digest:
+			raise ValueError(f"BAD FILE HASH CHECKSUM, maybe you have an old model?\n{filename}\nsha1={digest}")
+	return digest
+
 
 class CMAP_EMAT_Model(FilesCoreModel):
 
@@ -1048,6 +1066,29 @@ class CMAP_EMAT_Model(FilesCoreModel):
 			source_model_path_1 = join_norm(self.source_model_path, self.config['model_path_land_use_base'])
 		else:
 			source_model_path_1 = join_norm(self.source_model_path, self.config['model_path_land_use_alt1'])
+
+		# Check file hashes in source
+		filehash(
+			join_norm(source_model_path_1, 'Database', 'macros', 'call', 'amhwIOM_H.mac'),
+			'b64bff7404ac507c83f8d1ac454a73da9b12a265'
+		)
+		filehash(
+			join_norm(source_model_path_1, 'Database', 'macros', 'call', 'amhwIOM_L.mac'),
+			'dfaca3e50935f1a44dde3e0dafd3e96e376ed674'
+		)
+		filehash(
+			join_norm(source_model_path_1, 'Database', 'macros', 'call', 'skim5I_7c.mac'),
+			'85534ca29036437a3413449f7f9a85d0696a32bd'
+		)
+		filehash(
+			join_norm(source_model_path_1, 'Database', 'macros', 'call', 'net5I_7c.mac'),
+			'7bbbc3fddab22cab59b1e7c2e3462c05292804cb'
+		)
+		filehash(
+			join_norm(source_model_path_1, 'Database', 'data', 'toll_system_flag.csv'),
+			'883b8c945787262a92a9f3deddc961141d746e8e'
+		)
+
 		_logger.info(f"copying from: {source_model_path_1}")
 		_logger.info(f"copying to: {self.model_copy_path}")
 		copy_tree(
