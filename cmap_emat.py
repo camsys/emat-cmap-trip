@@ -196,6 +196,9 @@ class CMAP_EMAT_Model(FilesCoreModel):
 			if not os.path.exists(v):
 				warnings.warn(f"{k} core model is not available at {v}")
 
+		if self.scope != self.db.read_scope(self.scope.name):
+			self.db.update_scope(self.scope)
+
 		# Add parsers to instruct the load_measures function
 		# how to parse the outputs and get the measure values.
 
@@ -1677,6 +1680,13 @@ class CMAP_EMAT_Model(FilesCoreModel):
 		# 	shutil.rmtree(self.resolved_model_path)
 		# except:
 		# 	_logger.exception("EXCEPTION IN MODEL DELETE")
+
+	def invalidate_experiment_runs(self, *queries):
+		for q in queries:
+			bad_runs = self.db.read_experiment_measures(self.scope.name, runs='valid').query(q)
+			if not bad_runs.empty:
+				self.db.invalidate_experiment_runs(bad_runs)
+
 
 def _tiered_file_parse(filename, sep):
 	"""
