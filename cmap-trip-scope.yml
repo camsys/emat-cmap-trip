@@ -26,6 +26,7 @@ inputs:
         min: 0.9
         max: 1.5
         dist: uniform
+        desc: Linear change in highway capacity (1.0 is no change)
 
     park_price:
         # multiplier on parking pricing
@@ -36,6 +37,7 @@ inputs:
         min: 0.0
         max: 1.0
         dist: uniform
+        desc: Overall level of parking price in the region
 
     transit_fares:
         # this is a multiplier on existing transit fares.
@@ -46,6 +48,7 @@ inputs:
         min: 0.0
         max: 2.0
         dist: uniform
+        desc: Linear change in transit fares (1.0 is no change)
 
     telecommuting:
         # knock out this percentage of trips from HBW trips for eligible industries.
@@ -56,6 +59,7 @@ inputs:
         min: 0.0
         max: 0.5
         dist: uniform
+        desc: Daily fraction of the eligible workforce that will continue telecommuting
 
     fuel_cost:
         desc: Fuel cost in dollars per gallon.
@@ -94,6 +98,7 @@ inputs:
         min: 0.00
         max: 0.10
         dist: uniform
+        desc: User fee per vehicle mile traveled on any road, in dollars
 
     expressway_toll:
         # This will be a continuous variable giving a toll-per-mile on expressways that are presently free
@@ -106,6 +111,7 @@ inputs:
         min: 0.0
         max: 0.4
         dist: uniform
+        desc: Toll per expressway mile traveled, in dollars
 
     land_use:
         shortname: Land Use Scenario
@@ -115,6 +121,7 @@ inputs:
         values:
             - base
             - alt1
+        desc: Land Use Scenario
 
     vot_sensitivity:
         shortname: Value of Time Response
@@ -124,6 +131,7 @@ inputs:
         min: 0.8
         max: 1.0
         dist: uniform
+        desc: Linear change in the value of automobile travel time (1.0 is no change)
 
 
 outputs:
@@ -131,9 +139,13 @@ outputs:
     ### Run VMT Statistics ###
 
     Chicago_Expressway_VMT:
+        shortname: Chicago Expressway VMT
+        desc: Total vehicle miles traveled on expressways within the city of Chicago
         kind: info
 
     Chicago_Arterial_VMT:
+        shortname: Chicago Arterial VMT
+        desc: Total vehicle miles traveled on arterial streets within the city of Chicago
         kind: info
 
     Chicago_RampToll_VMT:
@@ -298,60 +310,91 @@ outputs:
     ### Final Run Statistics ###
 
     ENTIRE_NETWORK_Person_Trips_HW_Total_Person_Trips:
+        shortname: Region HW Person Trips
         kind: info
 
     ENTIRE_NETWORK_Person_Trips_HW_Auto_Person_Trips:
+        shortname: Region HW Auto Person Trips
         kind: info
 
     ENTIRE_NETWORK_Person_Trips_HW_Transit_Person_Trips:
+        shortname: Region HW Transit Trips
         kind: info
 
     ENTIRE_NETWORK_Person_Trips_HO_Total_Person_Trips:
+        shortname: Region HO Person Trips
         kind: info
 
     ENTIRE_NETWORK_Person_Trips_HO_Auto_Person_Trips:
+        shortname: Region HO Auto Person Trips
         kind: info
 
     ENTIRE_NETWORK_Person_Trips_HO_Transit_Person_Trips:
+        shortname: Region HO Transit Trips
         kind: info
 
     ENTIRE_NETWORK_Person_Trips_NH_Total_Person_Trips:
+        shortname: Region NH Person Trips
         kind: info
 
     ENTIRE_NETWORK_Person_Trips_NH_Auto_Person_Trips:
+        shortname: Region NH Auto Person Trips
         kind: info
 
     ENTIRE_NETWORK_Person_Trips_NH_Transit_Person_Trips:
+        shortname: Region NH Transit Trips
         kind: info
 
     ENTIRE_NETWORK_Transit_Share_HW_Transit_Share:
+        shortname: Region HW Transit Share
+        desc: >-
+            Transit mode share for home-based work trips
+            anywhere in the modeling region
         kind: info
 
     ENTIRE_NETWORK_Transit_Share_HO_Transit_Share:
+        shortname: Region HO Transit Share
         kind: info
 
     ENTIRE_NETWORK_Transit_Share_NH_Transit_Share:
+        shortname: Region NH Transit Share
         kind: info
 
     ENTIRE_NETWORK_Transit_Share_Overall_Transit_Share:
+        shortname: Region Overall Transit Share
+        desc: >-
+            Transit mode share for all trips of any purpose
+            anywhere in the modeling region
         kind: info
 
     ENTIRE_NETWORK_Trip_Distance_HW_Trip_Average_Miles:
+        shortname: Region HW Avg Trip Dist
+        desc: >-
+            Average trip distance in miles for home-based work trips
+            anywhere in the modeling region
         kind: info
 
     ENTIRE_NETWORK_Trip_Distance_HO_Trip_Average_Miles:
+        shortname: Region HO Avg Trip Dist
         kind: info
 
     ENTIRE_NETWORK_Trip_Distance_NH_Trip_Average_Miles:
+        shortname: Region NH Avg Trip Dist
         kind: info
 
     ENTIRE_NETWORK_Trip_Duration_HW_Trip_Average_Minutes:
+        shortname: Region HW Avg Trip Duration
+        desc: >-
+            Average trip duration in minutes for home-based work trips
+            anywhere in the modeling region
         kind: info
 
     ENTIRE_NETWORK_Trip_Duration_HO_Trip_Average_Minutes:
+        shortname: Region HO Avg Trip Duration
         kind: info
 
     ENTIRE_NETWORK_Trip_Duration_NH_Trip_Average_Minutes:
+        shortname: Region NH Avg Trip Duration
         kind: info
 
     ENTIRE_NETWORK_Other_Trips_B_Plate_Truck_Trips:
@@ -865,6 +908,10 @@ outputs:
         kind: info
 
     EJ_Average_Trip_Time_HWej_Aut_Avg_Min:
+        shortname: EJ Avg HW Auto Time
+        desc: >-
+            Average home-based work auto trip
+            time (in minutes) for EJ population
         kind: info
 
     EJ_Average_Trip_Time_HOej_Aut_Avg_Min:
@@ -885,6 +932,7 @@ outputs:
     ### Interchange Times ###
 
     mf44_amtime_311_to_24:
+        shortname: West Ridge to Loop
         kind: info
 
     mf44_amtime_311_to_125:
@@ -921,6 +969,7 @@ outputs:
         kind: info
 
     mf44_amtime_1636_to_24:
+        shortname: South Shore to Loop
         kind: info
 
     mf44_amtime_1636_to_125:
@@ -933,6 +982,10 @@ outputs:
         kind: info
 
     mf44_amtime_2004_to_24:
+        shortname: Lombard to Loop
+        desc: >-
+            Travel time (in minutes) from Zone 2004 (Lombard)
+            to Zone 24 (Loop) during the AM peak period
         kind: info
 
     mf44_amtime_2004_to_125:
@@ -2311,6 +2364,8 @@ outputs:
     ####### Formulas
 
     Regionwide_VMT:
+        shortname: Regionwide VMT
+        desc: Total vehicle miles traveled throughout the CMAP planning region
         kind: info
         formula: >-
             Chicago_Total_District_VMT
@@ -2327,6 +2382,8 @@ outputs:
 
 
     Regionwide_Expressway_VMT:
+        shortname: Regionwide Expressway VMT
+        desc: Total vehicle miles traveled on expressways throughout the CMAP planning region
         kind: info
         formula: >-
             Chicago_Expressway_VMT
@@ -2342,6 +2399,8 @@ outputs:
             + Wisconsin_Expressway_VMT
 
     Regionwide_Arterial_VMT:
+        shortname: Regionwide Arterial VMT
+        desc: Total vehicle miles traveled on arterial streets throughout the CMAP planning region
         kind: info
         formula: >-
             Chicago_Arterial_VMT
@@ -2357,6 +2416,11 @@ outputs:
             + Wisconsin_Arterial_VMT
 
     Trip_Duration_Ratio_EJ_to_Global_HW:
+        shortname: EJ Trip Duration Ratio
+        desc: >-
+            Ratio of average home-based work automobile trip duration
+            for EJ population to the average home-based work trip duration
+            for all persons in the region
         kind: info
         formula: >-
             EJ_Average_Trip_Time_HWej_Aut_Avg_Min
